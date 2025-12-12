@@ -3,48 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Coco - Gestión de Precios</title>
+    <title>EL COCO - Gestión de Precios</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
+    <!-- Header con logo y navegación -->
     <header>
-        <div class="logo-container">
-            <h1 class="logo-text">COCO</h1>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-store"></i> EL COCO</h1>
+                <p class="subtitle">Gestión de Precios de Productos</p>
+            </div>
+            <div class="cart-summary">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span> productos
+            </div>
         </div>
-        <div class="product-counter" id="product-counter">Productos Totales: 0</div>
     </header>
 
-    <main>
-        <div class="tabs">
-            <button class="tab-button active" data-tab="products">Productos Disponibles</button>
-            <button class="tab-button" data-tab="add-product">Agregar Productos</button>
-            <button class="tab-button" data-tab="cart">Carrito de Compra (<span id="cart-count">0</span>)</button>
+    <!-- Pestañas de navegación -->
+    <nav class="tabs">
+        <div class="container">
+            <button class="tab active" data-tab="products">
+                <i class="fas fa-boxes"></i> Productos Disponibles
+            </button>
+            <button class="tab" data-tab="add-product">
+                <i class="fas fa-plus-circle"></i> Agregar Productos
+            </button>
+            <button class="tab" data-tab="cart">
+                <i class="fas fa-shopping-cart"></i> Carrito de Compra
+                <span class="cart-badge" id="cart-badge">0</span>
+            </button>
         </div>
+    </nav>
 
+    <!-- Contenido principal -->
+    <main class="container">
+        <!-- Sección Productos Disponibles -->
         <section id="products" class="tab-content active">
-            <h2>🛍️ Productos Disponibles</h2>
-            <div class="filters">
-                <label for="category-filter">Filtrar por Categoría:</label>
-                <select id="category-filter">
-                    <option value="all">Todas</option>
+            <div class="section-header">
+                <h2><i class="fas fa-boxes"></i> Productos Disponibles</h2>
+                <div class="category-filter">
+                    <select id="category-filter">
+                        <option value="all">Todas las categorías</option>
+                        <option value="churros">Churros</option>
+                        <option value="verduras">Verduras</option>
+                        <option value="pan">Pan</option>
+                        <option value="dulces">Dulces</option>
+                        <option value="bebidas">Bebidas</option>
+                        <option value="limpieza">Limpieza</option>
+                        <option value="otros">Otros</option>
                     </select>
+                </div>
             </div>
-            <div id="product-list" class="product-grid">
-                <p id="no-products-message">No hay productos disponibles. Agrega uno en la pestaña "Agregar Productos".</p>
+            
+            <div class="products-grid" id="products-list">
+                <!-- Los productos se cargarán dinámicamente aquí -->
+            </div>
+            
+            <div class="empty-state" id="no-products">
+                <i class="fas fa-box-open"></i>
+                <h3>No hay productos disponibles</h3>
+                <p>Agrega productos en la pestaña "Agregar Productos"</p>
             </div>
         </section>
 
+        <!-- Sección Agregar Productos -->
         <section id="add-product" class="tab-content">
-            <h2>➕ Agregar Nuevo Producto</h2>
-            <form id="add-product-form">
+            <h2><i class="fas fa-plus-circle"></i> Agregar Nuevo Producto</h2>
+            
+            <form id="product-form">
                 <div class="form-group">
-                    <label for="product-name">Nombre del Producto:</label>
-                    <input type="text" id="product-name" required>
+                    <label for="product-name"><i class="fas fa-tag"></i> Nombre del Producto</label>
+                    <input type="text" id="product-name" required placeholder="Ej: Jabón PODER Ultra">
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="product-category">Categoría:</label>
+                    <label for="product-category"><i class="fas fa-filter"></i> Categoría</label>
                     <select id="product-category" required>
                         <option value="">Selecciona una categoría</option>
                         <option value="churros">Churros</option>
@@ -52,103 +88,129 @@
                         <option value="pan">Pan</option>
                         <option value="dulces">Dulces</option>
                         <option value="bebidas">Bebidas</option>
-                        <option value="limpieza">Productos de Limpieza</option>
+                        <option value="limpieza">Limpieza</option>
                         <option value="otros">Otros</option>
                     </select>
                 </div>
-
-                <h3>Configuración de Precios</h3>
-
-                <div class="price-group required-price">
-                    <h4>Precio Normal (Requerido)</h4>
-                    <div class="price-fields">
-                        <input type="number" step="0.01" min="0.01" id="price-normal" placeholder="Precio ($)" required>
-                        <input type="text" id="unit-normal" placeholder="Unidad (Ej: unidad, paquete)" required>
-                    </div>
-                </div>
-
-                <div class="price-group">
-                    <h4>Precio Individual (Opcional - por paquete)</h4>
-                    <input type="checkbox" id="enable-individual-price">
-                    <label for="enable-individual-price">Habilitar Precio Individual (Ej: jabón por unidad, si se vende en paquete)</label>
-                    <div class="price-fields individual-fields hidden">
-                        <input type="number" step="0.01" min="0.01" id="price-individual" placeholder="Precio por Unidad ($)">
-                        <input type="number" min="1" id="units-per-pack" placeholder="Unidades por Paquete (Ej: 3)">
-                    </div>
-                </div>
-
-                <div class="price-group">
-                    <h4>Precio por Peso (Opcional)</h4>
-                    <input type="checkbox" id="enable-weight-price">
-                    <label for="enable-weight-price">Habilitar Precio por Peso (Ej: Papas)</label>
-                    <div class="price-fields weight-fields hidden">
-                        <input type="number" step="0.01" min="0.01" id="price-per-lb" placeholder="Precio por Libra ($)">
+                
+                <div class="price-config-section">
+                    <h3><i class="fas fa-cog"></i> Configuración de Precios</h3>
+                    
+                    <div class="price-type">
+                        <h4><i class="fas fa-box"></i> Precio por Paquete</h4>
+                        <div class="price-inputs">
+                            <div class="form-group">
+                                <label for="package-price">Precio del paquete ($)</label>
+                                <input type="number" id="package-price" min="0" step="0.01" placeholder="Ej: 2.50">
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="price-type">
+                        <h4><i class="fas fa-cube"></i> Precio Individual (Opcional)</h4>
+                        <div class="price-inputs">
+                            <div class="form-group">
+                                <label for="unit-price">Precio por unidad ($)</label>
+                                <input type="number" id="unit-price" min="0" step="0.01" placeholder="Ej: 0.90">
+                            </div>
+                            <div class="form-group">
+                                <label for="units-per-package">Unidades por paquete</label>
+                                <input type="number" id="units-per-package" min="1" placeholder="Ej: 3">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="price-type">
+                        <h4><i class="fas fa-weight-hanging"></i> Precio por Peso (Opcional)</h4>
+                        <div class="price-inputs">
+                            <div class="form-group">
+                                <label for="price-per-pound">Precio por libra ($)</label>
+                                <input type="number" id="price-per-pound" min="0" step="0.01" placeholder="Ej: 1.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="price-per-kilo">Precio por kilo ($)</label>
+                                <input type="number" id="price-per-kilo" min="0" step="0.01" placeholder="Ej: 2.20">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <button type="submit" class="add-button">Guardar Producto</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Producto
+                    </button>
+                    <button type="button" id="clear-form" class="btn btn-secondary">
+                        <i class="fas fa-eraser"></i> Limpiar Formulario
+                    </button>
+                </div>
             </form>
+            
+            <!-- Lista de productos existentes para editar -->
+            <div class="existing-products">
+                <h3><i class="fas fa-edit"></i> Editar Productos Existentes</h3>
+                <div class="products-list-edit" id="edit-products-list">
+                    <!-- Los productos existentes se cargarán aquí -->
+                </div>
+            </div>
         </section>
 
+        <!-- Sección Carrito de Compra -->
         <section id="cart" class="tab-content">
-            <h2>🛒 Carrito de Compra</h2>
-            <div id="cart-list">
-                <p id="empty-cart-message">El carrito está vacío.</p>
-            </div>
-
-            <div class="cart-summary">
-                <h3>Total a Pagar: <span id="cart-total">$0.00</span></h3>
+            <div class="section-header">
+                <h2><i class="fas fa-shopping-cart"></i> Carrito de Compra</h2>
                 <div class="cart-actions">
-                    <button id="calculate-total-btn">Recalcular Total</button>
-                    <button id="clear-cart-btn" class="clear-button">Limpiar Carrito</button>
+                    <button id="clear-cart" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Limpiar Carrito
+                    </button>
                 </div>
+            </div>
+            
+            <div class="cart-items" id="cart-items">
+                <!-- Los productos del carrito se cargarán aquí -->
+            </div>
+            
+            <div class="empty-state" id="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Tu carrito está vacío</h3>
+                <p>Agrega productos desde la pestaña "Productos Disponibles"</p>
+            </div>
+            
+            <div class="cart-summary-total">
+                <div class="total-info">
+                    <h3>Total de la compra:</h3>
+                    <div class="total-amount" id="cart-total">$0.00</div>
+                </div>
+                <button id="calculate-total" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calcular Total
+                </button>
             </div>
         </section>
     </main>
 
-    <div id="selection-modal" class="modal">
+    <!-- Modal para seleccionar opciones de precio -->
+    <div id="price-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3>Seleccionar Opción</h3>
-            <div id="modal-product-details"></div>
-            <div id="modal-options"></div>
-            <button id="add-to-cart-modal-btn">Agregar al Carrito</button>
+            <div class="modal-header">
+                <h3 id="modal-product-name">Seleccionar Opción de Precio</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="price-options">
+                    <!-- Las opciones de precio se cargarán aquí -->
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button close-edit-modal">&times;</span>
-            <h3>✏️ Editar Producto Existente</h3>
-            <form id="edit-product-form">
-                <input type="hidden" id="edit-product-id">
+    <!-- Notificaciones -->
+    <div id="notification" class="notification"></div>
 
-                <div class="form-group">
-                    <label for="edit-product-name">Nombre del Producto:</label>
-                    <input type="text" id="edit-product-name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit-product-category">Categoría:</label>
-                    <select id="edit-product-category" required>
-                        <option value="churros">Churros</option>
-                        <option value="verduras">Verduras</option>
-                        <option value="pan">Pan</option>
-                        <option value="dulces">Dulces</option>
-                        <option value="bebidas">Bebidas</option>
-                        <option value="limpieza">Productos de Limpieza</option>
-                        <option value="otros">Otros</option>
-                    </select>
-                </div>
-
-                <div id="edit-prices-container">
-                    </div>
-                
-                <button type="submit" class="add-button">Guardar Cambios</button>
-            </form>
+    <footer>
+        <div class="container">
+            <p>EL COCO - Sistema de Gestión de Precios &copy; 2023</p>
+            <p>Almacenamiento local garantizado. Los datos se mantienen al recargar la página.</p>
         </div>
-    </div>
-    <div id="notifications-container"></div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
