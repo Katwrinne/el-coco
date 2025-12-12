@@ -19,6 +19,27 @@ const addToCartModalBtn = document.getElementById('add-to-cart-modal-btn');
 const emptyCartMessage = document.getElementById('empty-cart-message');
 const noProductsMessage = document.getElementById('no-products-message');
 const notificationsContainer = document.getElementById('notifications-container');
+// ... (Tus variables existentes)
+
+// Nuevas variables para el Modal de Edición
+const editModal = document.getElementById('edit-modal');
+const editProductForm = document.getElementById('edit-product-form');
+const editPricesContainer = document.getElementById('edit-prices-container');
+
+// Eventos para cerrar el modal de edición
+document.querySelector('.close-edit-modal').addEventListener('click', () => {
+    editModal.style.display = 'none';
+});
+
+// Evento para cerrar el modal haciendo clic fuera de él (extendemos el evento existente)
+window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+    if (e.target === editModal) { // Nuevo check
+        editModal.style.display = 'none';
+    }
+});
 
 // Evento para habilitar/deshabilitar campos opcionales
 document.getElementById('enable-individual-price').addEventListener('change', (e) => {
