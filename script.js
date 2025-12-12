@@ -421,7 +421,7 @@ editProductForm.addEventListener('submit', (e) => {
     const productIndex = products.findIndex(p => p.id === productId);
 
     if (productIndex === -1) {
-        showNotification('❌ Error: Producto a editar no encontrado.');
+        showNotification(' Error: Producto a editar no encontrado.');
         return;
     }
 
