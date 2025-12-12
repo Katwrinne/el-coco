@@ -1,697 +1,268 @@
-// Constantes para LocalStorage
-const STORAGE_KEY_PRODUCTS = 'elCocoProducts';
-const STORAGE_KEY_CART = 'elCocoCart';
-const KG_PER_LB = 0.453592; // Factor de conversión
+// Variables globales
+let products = [];
+let cart = [];
+let currentProductId = null;
 
-// Variables globales del DOM
-const tabsContainer = document.querySelector('.tabs');
-const tabContents = document.querySelectorAll('.tab-content');
-const productList = document.getElementById('product-list');
-const addProductForm = document.getElementById('add-product-form');
-const cartList = document.getElementById('cart-list');
-const cartTotalElement = document.getElementById('cart-total');
-const cartCountElement = document.getElementById('cart-count');
-const productCounterElement = document.getElementById('product-counter');
-const categoryFilter = document.getElementById('category-filter');
-const modal = document.getElementById('selection-modal');
-const modalOptions = document.getElementById('modal-options');
-const addToCartModalBtn = document.getElementById('add-to-cart-modal-btn');
-const emptyCartMessage = document.getElementById('empty-cart-message');
-const noProductsMessage = document.getElementById('no-products-message');
-const notificationsContainer = document.getElementById('notifications-container');
-// ... (Tus variables existentes)
+// Categorías de productos
+const categories = [
+    { id: 'churros', name: 'Churros' },
+    { id: 'verduras', name: 'Verduras' },
+    { id: 'pan', name: 'Pan' },
+    { id: 'dulces', name: 'Dulces' },
+    { id: 'bebidas', name: 'Bebidas' },
+    { id: 'limpieza', name: 'Limpieza' },
+    { id: 'otros', name: 'Otros' }
+];
 
-// Nuevas variables para el Modal de Edición
-const editModal = document.getElementById('edit-modal');
-const editProductForm = document.getElementById('edit-product-form');
-const editPricesContainer = document.getElementById('edit-prices-container');
-
-// Eventos para cerrar el modal de edición
-document.querySelector('.close-edit-modal').addEventListener('click', () => {
-    editModal.style.display = 'none';
+// Inicialización cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    loadProductsFromStorage();
+    loadCartFromStorage();
+    updateCartCount();
+    setupEventListeners();
+    displayProducts();
+    displayEditProductsList();
+    displayCartItems();
 });
 
-// Evento para cerrar el modal haciendo clic fuera de él (extendemos el evento existente)
-window.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        closeModal();
-    }
-    if (e.target === editModal) { // Nuevo check
-        editModal.style.display = 'none';
-    }
-});
-
-// Evento para habilitar/deshabilitar campos opcionales
-document.getElementById('enable-individual-price').addEventListener('change', (e) => {
-    document.querySelector('.individual-fields').classList.toggle('hidden', !e.target.checked);
-    document.getElementById('price-individual').required = e.target.checked;
-    document.getElementById('units-per-pack').required = e.target.checked;
-});
-
-document.getElementById('enable-weight-price').addEventListener('change', (e) => {
-    document.querySelector('.weight-fields').classList.toggle('hidden', !e.target.checked);
-    document.getElementById('price-per-lb').required = e.target.checked;
-});
-
-// --- Manejo de Datos (localStorage) ---
-
-/**
- * Carga los datos desde localStorage.
- * @param {string} key La clave de localStorage.
- * @returns {Array} Los datos parseados o un array vacío si no hay.
- */
-function loadData(key) {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-}
-
-/**
- * Guarda los datos en localStorage.
- * @param {string} key La clave de localStorage.
- * @param {Array} data El array de datos a guardar.
- */
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
-}
-
-// Inicialización de productos y carrito
-let products = loadData(STORAGE_KEY_PRODUCTS);
-let cart = loadData(STORAGE_KEY_CART);
-
-// --- Notificaciones ---
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = message;
-    
-    notificationsContainer.appendChild(notification);
-    
-    // Mostrar y luego ocultar
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-
-    setTimeout(() => {
-        notification.classList.remove('show');
-        notification.addEventListener('transitionend', () => notification.remove());
-    }, 3000);
-}
-
-// --- Manejo de Pestañas ---
-function changeTab(tabId) {
-    // Desactivar todas las pestañas
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    // Activar la pestaña y contenido seleccionados
-    document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-
-    // Refrescar el carrito si cambiamos a esa pestaña
-    if (tabId === 'cart') {
-        renderCart();
-    }
-}
-
-tabsContainer.addEventListener('click', (e) => {
-    if (e.target.classList.contains('tab-button')) {
-        changeTab(e.target.dataset.tab);
-    }
-});
-
-// --- Pestaña 2: Agregar Productos ---
-
-addProductForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('product-name').value;
-    const category = document.getElementById('product-category').value;
-    const priceNormal = parseFloat(document.getElementById('price-normal').value);
-    const unitNormal = document.getElementById('unit-normal').value;
-    
-    const newProduct = {
-        id: Date.now(),
-        name,
-        category,
-        prices: [{ type: 'normal', price: priceNormal, unit: unitNormal, label: `Paquete: $${priceNormal.toFixed(2)} por ${unitNormal}` }]
-    };
-
-    // Agregar Precio Individual
-    if (document.getElementById('enable-individual-price').checked) {
-        const priceIndividual = parseFloat(document.getElementById('price-individual').value);
-        const unitsPerPack = parseInt(document.getElementById('units-per-pack').value);
-        if (priceIndividual > 0 && unitsPerPack > 0) {
-            newProduct.prices.push({ 
-                type: 'individual', 
-                price: priceIndividual, 
-                unit: 'unidad', 
-                unitsPerPack,
-                label: `Individual: $${priceIndividual.toFixed(2)} c/u (${unitsPerPack} por paquete)`
-            });
-        }
-    }
-
-    // Agregar Precio por Peso
-    if (document.getElementById('enable-weight-price').checked) {
-        const pricePerLb = parseFloat(document.getElementById('price-per-lb').value);
-        if (pricePerLb > 0) {
-            const pricePerKg = pricePerLb / KG_PER_LB;
-            newProduct.prices.push({ 
-                type: 'weight', 
-                priceLb: pricePerLb,
-                priceKg: pricePerKg,
-                unit: 'peso',
-                label: `Peso: $${pricePerLb.toFixed(2)} por libra ($${pricePerKg.toFixed(2)} por kilo)`
-            });
-        }
-    }
-
-    products.push(newProduct);
-    saveData(STORAGE_KEY_PRODUCTS, products);
-    addProductForm.reset();
-    showNotification(`✅ Producto "${name}" agregado con éxito.`);
-    
-    // Cambiar a la pestaña de productos y refrescar la vista
-    changeTab('products');
-    renderProducts();
-});
-
-// --- Pestaña 1: Productos Disponibles ---
-
-/**
- * Renderiza la lista de productos en la interfaz.
- * @param {string} filterCategory Categoría para filtrar.
- */
-function renderProducts(filterCategory = 'all') {
-    productList.innerHTML = '';
-    
-    const filteredProducts = products.filter(p => filterCategory === 'all' || p.category === filterCategory);
-
-    if (filteredProducts.length === 0) {
-        noProductsMessage.style.display = 'block';
-        return;
-    }
-    noProductsMessage.style.display = 'none';
-
-    filteredProducts.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <h3>${product.name}</h3>
-            <p>Categoría: **${product.category.charAt(0).toUpperCase() + product.category.slice(1)}**</p>
-            <hr style="margin: 8px 0;">
-            ${product.prices.map(price => `<div class="price-option">${price.label}</div>`).join('')}
-            <button class="select-button" data-id="${product.id}">Elegir Opción</button>
-        `;
-        productList.appendChild(card);
-    });
-    // ... (dentro de script.js)
-
-function renderProducts(filterCategory = 'all') {
-    // ... (código para filtrar productos, manejo de mensajes)
-    
-    filteredProducts.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <h3>${product.name}</h3>
-            <p>Categoría: **${product.category.charAt(0).toUpperCase() + product.category.slice(1)}**</p>
-            <hr style="margin: 8px 0;">
-            ${product.prices.map(price => `<div class="price-option">${price.label}</div>`).join('')}
-            
-            <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <button class="select-button" data-id="${product.id}" style="flex-grow: 1;">Elegir Opción</button>
-                <button class="edit-button" data-id="${product.id}" style="width: 30%; background-color: #ffd6ba; color: #333;">✏️ Editar</button>
-            </div>
-        `;
-        productList.appendChild(card);
-    });
-    // ... (dentro de script.js, después de renderProducts)
-
-/**
- * Genera el HTML de los campos de precio para edición.
- * @param {object} product El producto a editar.
- * @returns {string} HTML con los campos de precio.
- */
-function generateEditPriceFields(product) {
-    let html = '';
-    const normalPrice = product.prices.find(p => p.type === 'normal');
-    const individualPrice = product.prices.find(p => p.type === 'individual');
-    const weightPrice = product.prices.find(p => p.type === 'weight');
-
-    // --- 1. Precio Normal (Requerido) ---
-    html += `
-        <div class="price-group required-price">
-            <h4>Precio Normal (Requerido)</h4>
-            <div class="price-fields">
-                <input type="number" step="0.01" min="0.01" id="edit-price-normal" placeholder="Precio ($)" value="${normalPrice.price}" required>
-                <input type="text" id="edit-unit-normal" placeholder="Unidad (Ej: unidad, paquete)" value="${normalPrice.unit}" required>
-            </div>
-        </div>
-    `;
-
-    // --- 2. Precio Individual (Opcional) ---
-    const isIndividualEnabled = !!individualPrice;
-    html += `
-        <div class="price-group">
-            <h4>Precio Individual (Opcional - por paquete)</h4>
-            <input type="checkbox" id="edit-enable-individual-price" ${isIndividualEnabled ? 'checked' : ''}>
-            <label for="edit-enable-individual-price">Habilitar Precio Individual</label>
-            <div class="price-fields individual-fields ${isIndividualEnabled ? '' : 'hidden'}">
-                <input type="number" step="0.01" min="0.01" id="edit-price-individual" placeholder="Precio por Unidad ($)" value="${isIndividualEnabled ? individualPrice.price : ''}">
-                <input type="number" min="1" id="edit-units-per-pack" placeholder="Unidades por Paquete (Ej: 3)" value="${isIndividualEnabled ? individualPrice.unitsPerPack : ''}">
-            </div>
-        </div>
-    `;
-
-    // --- 3. Precio por Peso (Opcional) ---
-    const isWeightEnabled = !!weightPrice;
-    html += `
-        <div class="price-group">
-            <h4>Precio por Peso (Opcional)</h4>
-            <input type="checkbox" id="edit-enable-weight-price" ${isWeightEnabled ? 'checked' : ''}>
-            <label for="edit-enable-weight-price">Habilitar Precio por Peso (por libra)</label>
-            <div class="price-fields weight-fields ${isWeightEnabled ? '' : 'hidden'}">
-                <input type="number" step="0.01" min="0.01" id="edit-price-per-lb" placeholder="Precio por Libra ($)" value="${isWeightEnabled ? weightPrice.priceLb : ''}">
-            </div>
-        </div>
-    `;
-
-    return html;
-}
-
-/**
- * Abre el modal de edición y carga los datos del producto.
- * @param {number} productId El ID del producto a editar.
- */
-function openEditModal(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) {
-        showNotification('❌ Error: Producto no encontrado.');
-        return;
-    }
-
-    // 1. Cargar datos básicos
-    document.getElementById('edit-product-id').value = productId;
-    document.getElementById('edit-product-name').value = product.name;
-    document.getElementById('edit-product-category').value = product.category;
-
-    // 2. Cargar campos de precio dinámicos
-    editPricesContainer.innerHTML = generateEditPriceFields(product);
-
-    // 3. Re-asignar eventos de visibilidad de campos opcionales en el modal
-    const editIndividualCheckbox = document.getElementById('edit-enable-individual-price');
-    const editWeightCheckbox = document.getElementById('edit-enable-weight-price');
-    
-    // Función para manejar la visibilidad de los campos en el modal de edición
-    const handleEditPriceToggle = (checkboxId, fieldClass) => {
-        const checkbox = document.getElementById(checkboxId);
-        const fields = editModal.querySelector(`.${fieldClass}`);
-        
-        checkbox.addEventListener('change', (e) => {
-            fields.classList.toggle('hidden', !e.target.checked);
-            // No hacemos 'required' aquí, ya que el usuario puede deshabilitarlo
+// Configurar event listeners
+function setupEventListeners() {
+    // Navegación por pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            switchTab(tabId);
         });
-    };
-
-    handleEditPriceToggle('edit-enable-individual-price', 'individual-fields');
-    handleEditPriceToggle('edit-enable-weight-price', 'weight-fields');
-
-    editModal.style.display = 'block';
+    });
+    
+    // Filtro de categorías
+    document.getElementById('category-filter').addEventListener('change', displayProducts);
+    
+    // Formulario de producto
+    document.getElementById('product-form').addEventListener('submit', saveProduct);
+    document.getElementById('clear-form').addEventListener('click', clearProductForm);
+    
+    // Carrito
+    document.getElementById('clear-cart').addEventListener('click', clearCart);
+    document.getElementById('calculate-total').addEventListener('click', calculateTotal);
+    
+    // Modal
+    document.querySelector('.close-modal').addEventListener('click', closeModal);
+    document.getElementById('price-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
 }
 
-// Evento para abrir el modal de edición
-productList.addEventListener('click', (e) => {
-    if (e.target.classList.contains('edit-button')) {
-        const productId = parseInt(e.target.dataset.id);
-        openEditModal(productId);
-    }
-    // ... (asegúrate de que el evento 'select-button' que ya existe no se pierda)
-    if (e.target.classList.contains('select-button')) {
-        // ... (Tu lógica existente para open modal de selección)
-    }
-});
-
-    // Actualizar contador
-    productCounterElement.textContent = `Productos Totales: ${products.length}`;
-
-    // Llenar el filtro de categorías (solo categorías de productos existentes)
-    const existingCategories = [...new Set(products.map(p => p.category))];
-    categoryFilter.innerHTML = '<option value="all">Todas</option>' + 
-        existingCategories.map(cat => `<option value="${cat}" ${cat === filterCategory ? 'selected' : ''}>${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`).join('');
-}
-
-// Evento para el filtro de categoría
-categoryFilter.addEventListener('change', (e) => {
-    renderProducts(e.target.value);
-});
-
-// --- Modal de Selección (para agregar al carrito) ---
-
-let currentProduct = null;
-let currentPriceOption = null;
-
-productList.addEventListener('click', (e) => {
-    if (e.target.classList.contains('select-button')) {
-        const productId = parseInt(e.target.dataset.id);
-        currentProduct = products.find(p => p.id === productId);
-
-        if (!currentProduct) return;
-
-        // Mostrar nombre del producto en el modal
-        document.getElementById('modal-product-details').innerHTML = `<h4>${currentProduct.name}</h4>`;
-        modalOptions.innerHTML = '';
-        currentPriceOption = null;
-        addToCartModalBtn.disabled = true;
-
-        // Crear opciones en el modal
-        currentProduct.prices.forEach((option, index) => {
-            const optionDiv = document.createElement('div');
-            optionDiv.className = 'price-option';
-            optionDiv.dataset.index = index;
-            
-            let inputField;
-            if (option.type === 'weight') {
-                // Para peso: campo para ingresar la cantidad en libras
-                inputField = `<input type="number" step="0.01" min="0.01" value="1.00" class="modal-price-input" data-unit="lb" placeholder="Libras" onchange="updateWeightDisplay(this, ${option.priceLb})">`;
-                optionDiv.innerHTML = `
-                    <span>${option.label.split('(')[0]}</span>
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        ${inputField} <span class="weight-unit">lb</span>
-                    </div>
-                `;
-            } else {
-                // Para normal/individual/cantidad: campo para ingresar la cantidad de unidades/paquetes
-                inputField = `<input type="number" min="1" value="1" class="modal-price-input" data-unit="${option.unit}" placeholder="Cantidad">`;
-                optionDiv.innerHTML = `
-                    <span>${option.label}</span>
-                    ${inputField}
-                `;
+// Cargar productos desde localStorage
+function loadProductsFromStorage() {
+    const storedProducts = localStorage.getItem('elcoco_products');
+    if (storedProducts) {
+        products = JSON.parse(storedProducts);
+    } else {
+        // Productos de ejemplo
+        products = [
+            {
+                id: 1,
+                name: 'Jabón PODER Ultra',
+                category: 'limpieza',
+                prices: {
+                    package: { price: 2.50, unit: 'paquete' },
+                    unit: { price: 0.90, packageUnits: 3 },
+                    weight: null
+                }
+            },
+            {
+                id: 2,
+                name: 'Papas',
+                category: 'verduras',
+                prices: {
+                    package: null,
+                    unit: null,
+                    weight: { perPound: 1.00, perKilo: 2.20 }
+                }
+            },
+            {
+                id: 3,
+                name: 'Pan Integral',
+                category: 'pan',
+                prices: {
+                    package: { price: 1.50, unit: 'paquete' },
+                    unit: { price: 0.50, packageUnits: 3 },
+                    weight: null
+                }
+            },
+            {
+                id: 4,
+                name: 'Refresco de Cola',
+                category: 'bebidas',
+                prices: {
+                    package: { price: 4.50, unit: 'pack 6 unidades' },
+                    unit: { price: 0.85, packageUnits: 6 },
+                    weight: null
+                }
+            },
+            {
+                id: 5,
+                name: 'Churros de Canela',
+                category: 'churros',
+                prices: {
+                    package: { price: 3.00, unit: 'paquete' },
+                    unit: null,
+                    weight: null
+                }
             }
-
-            modalOptions.appendChild(optionDiv);
-
-            // Manejar la selección y el campo de cantidad
-            optionDiv.addEventListener('click', () => {
-                document.querySelectorAll('#modal-options .price-option').forEach(o => o.classList.remove('selected'));
-                optionDiv.classList.add('selected');
-                currentPriceOption = { ...option, index };
-                addToCartModalBtn.disabled = false;
-            });
-
-            // Prevenir que el click en el input active la selección
-            optionDiv.querySelector('.modal-price-input').addEventListener('click', (event) => {
-                event.stopPropagation();
-            });
-        });
-
-        modal.style.display = 'block';
+        ];
+        saveProductsToStorage();
     }
-});
+}
 
-    // ... (después del código del carrito)
+// Guardar productos en localStorage
+function saveProductsToStorage() {
+    localStorage.setItem('elcoco_products', JSON.stringify(products));
+}
 
-/**
- * Maneja el envío del formulario de edición y guarda los cambios.
- */
-editProductForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const productId = parseInt(document.getElementById('edit-product-id').value);
-    const productIndex = products.findIndex(p => p.id === productId);
-
-    if (productIndex === -1) {
-        showNotification(' Error: Producto a editar no encontrado.');
-        return;
+// Cargar carrito desde localStorage
+function loadCartFromStorage() {
+    const storedCart = localStorage.getItem('elcoco_cart');
+    if (storedCart) {
+        cart = JSON.parse(storedCart);
     }
+}
 
-    const updatedPrices = [];
-    
-    // --- 1. Precio Normal (Requerido) ---
-    const priceNormal = parseFloat(document.getElementById('edit-price-normal').value);
-    const unitNormal = document.getElementById('edit-unit-normal').value;
-    updatedPrices.push({ 
-        type: 'normal', 
-        price: priceNormal, 
-        unit: unitNormal, 
-        label: `Paquete: $${priceNormal.toFixed(2)} por ${unitNormal}` 
+// Guardar carrito en localStorage
+function saveCartToStorage() {
+    localStorage.setItem('elcoco_cart', JSON.stringify(cart));
+}
+
+// Cambiar entre pestañas
+function switchTab(tabId) {
+    // Desactivar todas las pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
     });
-
-    // --- 2. Precio Individual (Opcional) ---
-    if (document.getElementById('edit-enable-individual-price').checked) {
-        const priceIndividual = parseFloat(document.getElementById('edit-price-individual').value);
-        const unitsPerPack = parseInt(document.getElementById('edit-units-per-pack').value);
-        if (priceIndividual > 0 && unitsPerPack > 0) {
-            updatedPrices.push({ 
-                type: 'individual', 
-                price: priceIndividual, 
-                unit: 'unidad', 
-                unitsPerPack,
-                label: `Individual: $${priceIndividual.toFixed(2)} c/u (${unitsPerPack} por paquete)`
-            });
-        } else {
-             showNotification('⚠️ Precios/Unidades Individuales inválidos, no se guardará esta opción.');
-        }
-    }
-
-    // --- 3. Precio por Peso (Opcional) ---
-    if (document.getElementById('edit-enable-weight-price').checked) {
-        const pricePerLb = parseFloat(document.getElementById('edit-price-per-lb').value);
-        if (pricePerLb > 0) {
-            const pricePerKg = pricePerLb / KG_PER_LB;
-            updatedPrices.push({ 
-                type: 'weight', 
-                priceLb: pricePerLb,
-                priceKg: pricePerKg,
-                unit: 'peso',
-                label: `Peso: $${pricePerLb.toFixed(2)} por libra ($${pricePerKg.toFixed(2)} por kilo)`
-            });
-        } else {
-             showNotification('⚠️ Precio por Libra inválido, no se guardará esta opción.');
-        }
-    }
-
-    // Aplicar los cambios al producto
-    products[productIndex].name = document.getElementById('edit-product-name').value;
-    products[productIndex].category = document.getElementById('edit-product-category').value;
-    products[productIndex].prices = updatedPrices;
-
-    saveData(STORAGE_KEY_PRODUCTS, products);
-    editModal.style.display = 'none';
-    showNotification(`✏️ Producto "${products[productIndex].name}" actualizado con éxito.`);
-    renderProducts();
-});
-
-
-// Helper para actualizar el display de peso (libras/kilos)
-function updateWeightDisplay(input, priceLb) {
-    const value = parseFloat(input.value) || 0;
-    const kgValue = (value * KG_PER_LB).toFixed(2);
-    const totalCost = (value * priceLb).toFixed(2);
     
-    // Muestra también el peso en kilos y el costo total en una etiqueta cercana (ejemplo de mejora de UX)
-    // Para simplificar el ejemplo, solo aseguramos que el valor sea válido.
-    // En un proyecto real, agregarías un span para mostrar el cálculo de Kg.
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Activar pestaña seleccionada
+    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    
+    // Actualizar la vista si es necesario
+    if (tabId === 'products') {
+        displayProducts();
+    } else if (tabId === 'cart') {
+        displayCartItems();
+    }
 }
 
-// Evento para agregar producto (desde el modal) al carrito
-addToCartModalBtn.addEventListener('click', () => {
-    if (!currentProduct || !currentPriceOption) {
-        showNotification('⚠️ Por favor, selecciona una opción de precio.');
-        return;
-    }
-
-    const selectedOptionDiv = document.querySelector('#modal-options .price-option.selected');
-    const quantityInput = selectedOptionDiv ? selectedOptionDiv.querySelector('.modal-price-input') : null;
-    const quantity = parseFloat(quantityInput?.value) || 1;
-
-    if (quantity <= 0) {
-        showNotification('⚠️ La cantidad debe ser mayor a cero.');
-        return;
-    }
-
-    // Estructura del objeto del carrito
-    const cartItem = {
-        cartId: Date.now(), // ID único para este elemento en el carrito
-        productId: currentProduct.id,
-        name: currentProduct.name,
-        category: currentProduct.category,
-        priceOption: currentPriceOption, // El objeto de precio seleccionado
-        quantity: quantity,
-        unitLabel: currentPriceOption.type === 'weight' ? 'lb' : 'unidades', // Unidad para mostrar
-        total: 0 // Se calculará después
-    };
-
-    cart.push(cartItem);
-    saveData(STORAGE_KEY_CART, cart);
-    closeModal();
-    showNotification(`🛒 Agregado ${quantity} ${cartItem.unitLabel} de ${cartItem.name} al carrito.`);
-    renderCart(); // Refrescar el carrito
-});
-
-// Cerrar Modal
-function closeModal() {
-    modal.style.display = 'none';
-    currentProduct = null;
-    currentPriceOption = null;
-}
-
-document.querySelector('.close-button').addEventListener('click', closeModal);
-window.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        closeModal();
-    }
-});
-
-
-// --- Pestaña 3: Carrito de Compra ---
-
-/**
- * Calcula el subtotal para un ítem del carrito.
- * @param {object} item El ítem del carrito.
- * @returns {number} El subtotal.
- */
-function calculateItemTotal(item) {
-    const option = item.priceOption;
-    let total = 0;
-
-    switch (option.type) {
-        case 'normal':
-        case 'individual':
-            // Precio por unidad o por paquete (cantidad simple)
-            // Nota: Usamos el campo 'price' para precio normal e individual
-            total = option.price * item.quantity; 
-            break;
-        case 'weight':
-            // Precio por peso (cantidad en libras)
-            total = option.priceLb * item.quantity;
-            break;
-        default:
-            total = 0;
+// Mostrar productos en la pestaña de productos
+function displayProducts() {
+    const productsList = document.getElementById('products-list');
+    const noProducts = document.getElementById('no-products');
+    const categoryFilter = document.getElementById('category-filter').value;
+    
+    // Filtrar productos por categoría
+    let filteredProducts = products;
+    if (categoryFilter !== 'all') {
+        filteredProducts = products.filter(product => product.category === categoryFilter);
     }
     
-    // Actualizar el total del ítem en el objeto
-    item.total = total; 
-    return total;
-}
-
-/**
- * Renderiza el carrito de compra y calcula el total.
- */
-function renderCart() {
-    cartList.innerHTML = '';
-    let grandTotal = 0;
-
-    if (cart.length === 0) {
-        emptyCartMessage.style.display = 'block';
-        cartCountElement.textContent = 0;
-        cartTotalElement.textContent = '$0.00';
+    // Mostrar mensaje si no hay productos
+    if (filteredProducts.length === 0) {
+        productsList.innerHTML = '';
+        noProducts.style.display = 'block';
         return;
     }
-    emptyCartMessage.style.display = 'none';
     
-    cart.forEach(item => {
-        const itemTotal = calculateItemTotal(item);
-        grandTotal += itemTotal;
-
-        const option = item.priceOption;
+    noProducts.style.display = 'none';
+    
+    // Generar HTML para cada producto
+    productsList.innerHTML = filteredProducts.map(product => {
+        const categoryName = categories.find(cat => cat.id === product.category)?.name || product.category;
         
-        let unitText = '';
-        if (option.type === 'weight') {
-            const kgValue = (item.quantity * KG_PER_LB).toFixed(2);
-            unitText = `(${item.quantity.toFixed(2)} lb / ${kgValue} kg)`;
-        } else if (option.type === 'individual') {
-            unitText = `(${item.quantity} unidades individuales)`;
-        } else {
-            unitText = `(${item.quantity} ${option.unit})`;
-        }
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'cart-item';
-        itemDiv.dataset.cartId = item.cartId;
-        itemDiv.innerHTML = `
-            <div class="item-header">
-                <span>${item.name}</span>
-                <span>$${itemTotal.toFixed(2)}</span>
-            </div>
-            <div class="item-details">
-                **Opción:** ${option.label.split(':')[0]} <br>
-                **Cantidad:** ${item.quantity.toFixed(option.type === 'weight' ? 2 : 0)} ${unitText}
-            </div>
-            <div class="quantity-controls">
-                <label for="qty-${item.cartId}">Ajustar Cantidad (${item.unitLabel}):</label>
-                <input type="number" 
-                       id="qty-${item.cartId}" 
-                       value="${item.quantity.toFixed(option.type === 'weight' ? 2 : 0)}" 
-                       step="${option.type === 'weight' ? '0.01' : '1'}" 
-                       min="${option.type === 'weight' ? '0.01' : '1'}" 
-                       data-cart-id="${item.cartId}"
-                       class="cart-quantity-input">
-                <button class="remove-btn" data-cart-id="${item.cartId}">Eliminar</button>
+        // Determinar cuántas opciones de precio tiene el producto
+        const priceOptionsCount = countPriceOptions(product);
+        
+        return `
+            <div class="product-card" data-id="${product.id}">
+                <div class="product-header">
+                    <h3>${product.name}</h3>
+                    <span class="product-category">${categoryName}</span>
+                </div>
+                <div class="product-prices">
+                    ${renderProductPrices(product)}
+                </div>
+                <div class="product-actions">
+                    ${priceOptionsCount > 1 
+                        ? `<button class="btn btn-primary btn-select-price" data-id="${product.id}">
+                            <i class="fas fa-cart-plus"></i> Elegir Opción
+                           </button>`
+                        : `<button class="btn btn-primary btn-add-to-cart" data-id="${product.id}" data-price-type="${getFirstPriceType(product)}">
+                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                           </button>`
+                    }
+                </div>
             </div>
         `;
-        cartList.appendChild(itemDiv);
+    }).join('');
+    
+    // Agregar event listeners a los botones
+    document.querySelectorAll('.btn-select-price').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = parseInt(this.getAttribute('data-id'));
+            openPriceModal(productId);
+        });
     });
-
-    cartTotalElement.textContent = `$${grandTotal.toFixed(2)}`;
-    cartCountElement.textContent = cart.length;
-    saveData(STORAGE_KEY_CART, cart);
+    
+    document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = parseInt(this.getAttribute('data-id'));
+            const priceType = this.getAttribute('data-price-type');
+            addToCart(productId, priceType);
+        });
+    });
 }
 
-// Evento para ajustar la cantidad
-cartList.addEventListener('change', (e) => {
-    if (e.target.classList.contains('cart-quantity-input')) {
-        const cartId = parseInt(e.target.dataset.cartId);
-        const newQuantity = parseFloat(e.target.value);
-        
-        if (newQuantity <= 0) {
-            showNotification('⚠️ Cantidad inválida, use el botón "Eliminar".');
-            e.target.value = cart.find(i => i.cartId === cartId).quantity; // Revertir valor
-            return;
-        }
+// Contar opciones de precio de un producto
+function countPriceOptions(product) {
+    let count = 0;
+    if (product.prices.package && product.prices.package.price) count++;
+    if (product.prices.unit && product.prices.unit.price) count++;
+    if (product.prices.weight && (product.prices.weight.perPound || product.prices.weight.perKilo)) count++;
+    return count;
+}
 
-        const itemIndex = cart.findIndex(i => i.cartId === cartId);
-        if (itemIndex > -1) {
-            cart[itemIndex].quantity = newQuantity;
-            renderCart();
-        }
+// Obtener el primer tipo de precio disponible
+function getFirstPriceType(product) {
+    if (product.prices.package && product.prices.package.price) return 'package';
+    if (product.prices.unit && product.prices.unit.price) return 'unit';
+    if (product.prices.weight && (product.prices.weight.perPound || product.prices.weight.perKilo)) return 'weight';
+    return 'package';
+}
+
+// Renderizar precios de un producto
+function renderProductPrices(product) {
+    let html = '';
+    
+    if (product.prices.package && product.prices.package.price) {
+        html += `
+            <div class="price-option">
+                <div class="price-type">
+                    <i class="fas fa-box"></i> Paquete
+                </div>
+                <div class="price-amount">$${product.prices.package.price.toFixed(2)}</div>
+                <div class="price-unit">por ${product.prices.package.unit}</div>
+            </div>
+        `;
     }
-});
-
-// Evento para recalcular total
-document.getElementById('calculate-total-btn').addEventListener('click', () => {
-    renderCart();
-    showNotification('Recalculando Total...');
-});
-
-
-// Evento para eliminar ítem del carrito
-cartList.addEventListener('click', (e) => {
-    if (e.target.classList.contains('remove-btn')) {
-        const cartId = parseInt(e.target.dataset.cartId);
-        const itemIndex = cart.findIndex(i => i.cartId === cartId);
-        
-        if (itemIndex > -1) {
-            const removedItemName = cart[itemIndex].name;
-            cart.splice(itemIndex, 1);
-            showNotification(`❌ Eliminado "${removedItemName}" del carrito.`);
-            renderCart();
-        }
-    }
-});
-
-// Evento para limpiar carrito
-document.getElementById('clear-cart-btn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
-        cart = [];
-        saveData(STORAGE_KEY_CART, cart);
-        showNotification('🗑️ Carrito vaciado.');
-        renderCart();
-    }
-});
-
-// --- Inicialización ---
-document.addEventListener('DOMContentLoaded', () => {
-    renderProducts();
-    renderCart();
-});
+    
+    if (product.prices.unit && product.prices.unit.price) {
+        html += `
+            <div class="price-
