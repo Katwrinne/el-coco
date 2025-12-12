@@ -1,1 +1,2049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Precios - Tienda "Poder"</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --rosa-principal: #ff69b4;
+            --rosa-claro: #ffb6c1;
+            --rosa-suave: #ffe4e9;
+            --rosa-oscuro: #d63384;
+            --azul-poder: #1e3a8a;
+            --azul-claro: #3b82f6;
+            --texto-oscuro: #4a4a4a;
+            --blanco: #ffffff;
+            --sombra: rgba(255, 105, 180, 0.2);
+            --gris-claro: #f5f5f5;
+            --verde-tienda: #10b981;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #fff9fb;
+            color: var(--texto-oscuro);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 25px 0 35px;
+            background: linear-gradient(135deg, var(--azul-poder), var(--azul-claro));
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-tienda {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo-texto {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            color: white;
+        }
+
+        .logo-subtitulo {
+            font-size: 1.8rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-top: -10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitulo {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .pestanas {
+            display: flex;
+            background-color: var(--rosa-suave);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            flex-wrap: wrap;
+        }
+
+        .pestana {
+            flex: 1;
+            padding: 18px 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--rosa-oscuro);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-width: 200px;
+            margin: 5px;
+        }
+
+        .pestana:hover {
+            background-color: rgba(255, 105, 180, 0.1);
+        }
+
+        .pestana.activa {
+            background-color: var(--rosa-principal);
+            color: white;
+            box-shadow: 0 4px 8px var(--sombra);
+        }
+
+        .contenido-pestana {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .contenido-pestana.activa {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .seccion {
+            background-color: var(--blanco);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px var(--sombra);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--azul-poder);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--rosa-principal);
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+
+        h2 i {
+            margin-right: 12px;
+            color: var(--rosa-principal);
+        }
+
+        .formulario-agregar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .grupo-formulario {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--azul-poder);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input, select, textarea {
+            padding: 14px 18px;
+            border: 2px solid var(--rosa-claro);
+            border-radius: 10px;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--rosa-principal);
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+        }
+
+        .boton {
+            background-color: var(--rosa-principal);
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .boton:hover {
+            background-color: var(--rosa-oscuro);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px var(--sombra);
+        }
+
+        .boton i {
+            font-size: 1.2rem;
+        }
+
+        .boton-secundario {
+            background-color: transparent;
+            color: var(--rosa-principal);
+            border: 2px solid var(--rosa-principal);
+        }
+
+        .boton-secundario:hover {
+            background-color: var(--rosa-suave);
+        }
+
+        .boton-azul {
+            background-color: var(--azul-claro);
+        }
+
+        .boton-azul:hover {
+            background-color: var(--azul-poder);
+        }
+
+        .boton-grande {
+            grid-column: 1 / -1;
+            padding: 18px;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .contenedor-productos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .contenedor-productos {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .lista-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .producto {
+            background-color: var(--rosa-suave);
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            border-left: 6px solid var(--azul-claro);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .producto:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .producto-categoria {
+            display: inline-block;
+            background-color: var(--azul-claro);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+
+        .producto-nombre {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--azul-poder);
+            line-height: 1.3;
+        }
+
+        .producto-precios {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border-left: 4px solid var(--verde-tienda);
+        }
+
+        .precio-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--rosa-claro);
+        }
+
+        .precio-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .precio-tipo {
+            font-weight: 600;
+            color: var(--texto-oscuro);
+        }
+
+        .precio-valor {
+            font-weight: 800;
+            color: var(--verde-tienda);
+            font-size: 1.1rem;
+        }
+
+        .producto-unidad {
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 3px;
+        }
+
+        .producto-id {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: var(--azul-poder);
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            border: 1px solid var(--azul-claro);
+        }
+
+        .producto-acciones {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .producto-acciones button {
+            flex: 1;
+        }
+
+        .producto-seleccionado {
+            background-color: #e6f7ff;
+            border-left-color: var(--verde-tienda);
+        }
+
+        .resumen-compra {
+            background-color: var(--blanco);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px var(--sombra);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .lista-seleccionados {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            padding-right: 10px;
+        }
+
+        .item-seleccionado {
+            display: flex;
+            flex-direction: column;
+            padding: 18px 0;
+            border-bottom: 1px dashed var(--rosa-claro);
+        }
+
+        .item-seleccionado:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            margin-bottom: 15px;
+        }
+
+        .item-nombre {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--azul-poder);
+        }
+
+        .item-categoria {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .item-opciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--rosa-suave);
+            border-radius: 8px;
+        }
+
+        .opcion-venta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .opcion-titulo {
+            font-weight: 600;
+            color: var(--azul-poder);
+            font-size: 1rem;
+        }
+
+        .opcion-precio {
+            color: var(--verde-tienda);
+            font-weight: 700;
+        }
+
+        .opcion-botones {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cantidad-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--rosa-claro);
+            border: none;
+            color: var(--rosa-oscuro);
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .cantidad-btn:hover {
+            background-color: var(--rosa-principal);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .cantidad-valor {
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+            font-size: 1.3rem;
+            color: var(--azul-poder);
+        }
+
+        .eliminar-item {
+            background: var(--rosa-principal);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            align-self: flex-end;
+        }
+
+        .eliminar-item:hover {
+            background-color: #ff4d94;
+            transform: translateY(-2px);
+        }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 2.2rem;
+            font-weight: 800;
+            padding: 30px 0;
+            border-top: 3px solid var(--rosa-claro);
+            margin-top: 20px;
+            color: var(--azul-poder);
+        }
+
+        .total-precio {
+            color: var(--verde-tienda);
+        }
+
+        .acciones-totales {
+            display: flex;
+            gap: 20px;
+        }
+
+        .acciones-totales button {
+            flex: 1;
+        }
+
+        .vacio {
+            text-align: center;
+            padding: 60px 30px;
+            color: #aaa;
+            font-style: italic;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+
+        .vacio i {
+            font-size: 4rem;
+            margin-bottom: 25px;
+            opacity: 0.5;
+        }
+
+        .productos-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: var(--rosa-suave);
+            border-radius: 12px;
+            border-left: 6px solid var(--azul-claro);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .contador-productos {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--azul-poder);
+        }
+
+        .contador-productos span {
+            background-color: var(--azul-claro);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 25px;
+            margin-left: 10px;
+            font-size: 1.4rem;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filtro-categoria {
+            padding: 12px 20px;
+            border: 2px solid var(--rosa-claro);
+            border-radius: 8px;
+            background-color: white;
+            color: var(--texto-oscuro);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filtro-categoria.activa {
+            background-color: var(--azul-claro);
+            color: white;
+            border-color: var(--azul-claro);
+        }
+
+        .filtro-todos {
+            background-color: var(--gris-claro);
+        }
+
+        .info-precios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .tipo-precio {
+            background-color: var(--rosa-suave);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--verde-tienda);
+        }
+
+        .tipo-precio h4 {
+            color: var(--azul-poder);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 25px;
+            color: var(--azul-poder);
+            font-size: 1rem;
+            border-top: 1px solid var(--rosa-claro);
+        }
+
+        /* Estilos para el scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--rosa-suave);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--rosa-claro);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--rosa-principal);
+        }
+
+        /* Estilos para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .logo-texto {
+                font-size: 2.5rem;
+            }
+            
+            .logo-subtitulo {
+                font-size: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitulo {
+                font-size: 1.1rem;
+            }
+            
+            .pestana {
+                padding: 15px 10px;
+                font-size: 1rem;
+                min-width: 150px;
+            }
+            
+            .seccion {
+                padding: 20px;
+            }
+            
+            .lista-productos {
+                grid-template-columns: 1fr;
+            }
+            
+            .productos-info {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .filtros {
+                flex-wrap: wrap;
+            }
+            
+            .acciones-totales {
+                flex-direction: column;
+            }
+            
+            .item-opciones {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Estilos para productos especiales */
+        .producto-especial {
+            background: linear-gradient(135deg, var(--rosa-suave), #e6f7ff);
+            border-left-color: var(--verde-tienda);
+        }
+
+        .etiqueta-especial {
+            position: absolute;
+            top: 15px;
+            left: -8px;
+            background-color: var(--verde-tienda);
+            color: white;
+            padding: 5px 15px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 0 15px 15px 0;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+        }
+
+        .campo-precios-multiples {
+            grid-column: 1 / -1;
+        }
+
+        .precios-multiples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .precio-multiple {
+            background-color: var(--rosa-suave);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--rosa-claro);
+        }
+
+        .titulo-precio-multiple {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--azul-poder);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-tienda">
+                <div>
+                    <div class="logo-texto">PODER</div>
+                    <div class="logo-subtitulo">STON | COLLACETTES ESENCIALES</div>
+                </div>
+            </div>
+            <h1><i class="fas fa-store"></i> Gestor de Precios - Tienda "Poder"</h1>
+            <p class="subtitulo">Sistema completo de gestión de precios con soporte para paquetes, unidades individuales, venta por peso y ofertas por cantidad</p>
+        </header>
+
+        <div class="pestanas">
+            <div class="pestana activa" data-pestana="productos">
+                <i class="fas fa-boxes"></i> Productos Disponibles
+            </div>
+            <div class="pestana" data-pestana="agregar">
+                <i class="fas fa-plus-circle"></i> Agregar Productos
+            </div>
+            <div class="pestana" data-pestana="carrito">
+                <i class="fas fa-shopping-cart"></i> Carrito de Compra
+            </div>
+        </div>
+
+        <!-- Pestaña 1: Productos Disponibles -->
+        <div class="contenido-pestana activa" id="pestana-productos">
+            <section class="seccion">
+                <h2><i class="fas fa-boxes"></i> Productos Disponibles en la Tienda</h2>
+                
+                <div class="productos-info">
+                    <div class="contador-productos">
+                        Total de productos: <span id="contador-productos">0</span>
+                    </div>
+                    
+                    <div class="filtros">
+                        <div class="filtro-categoria filtro-todos activa" data-categoria="todos">Todos</div>
+                        <div class="filtro-categoria" data-categoria="limpieza">Limpieza</div>
+                        <div class="filtro-categoria" data-categoria="bebidas">Bebidas</div>
+                        <div class="filtro-categoria" data-categoria="verduras">Verduras</div>
+                        <div class="filtro-categoria" data-categoria="dulces">Dulces</div>
+                        <div class="filtro-categoria" data-categoria="pan">Pan</div>
+                        <div class="filtro-categoria" data-categoria="churros">Churros</div>
+                        <div class="filtro-categoria" data-categoria="otros">Otros</div>
+                    </div>
+                </div>
+                
+                <div class="lista-productos" id="lista-productos">
+                    <!-- Los productos se cargarán aquí dinámicamente -->
+                    <div class="vacio" id="mensaje-vacio">
+                        <i class="fas fa-box-open"></i>
+                        <p>No hay productos registrados aún. Agrega el primero usando la pestaña "Agregar Productos".</p>
+                    </div>
+                </div>
+
+                <div class="info-precios">
+                    <div class="tipo-precio">
+                        <h4><i class="fas fa-box"></i> Precio por Paquete</h4>
+                        <p>Algunos productos se venden en paquetes (ej: 3 jabones, caja de café).</p>
+                    </div>
+                    <div class="tipo-precio">
+                        <h4><i class="fas fa-cube"></i> Precio por Unidad</h4>
+                        <p>Los productos de paquete también pueden venderse individualmente a diferente precio.</p>
+                    </div>
+                    <div class="tipo-precio">
+                        <h4><i class="fas fa-balance-scale"></i> Precio por Peso</h4>
+                        <p>Productos como verduras se venden por libra o por cantidad específica.</p>
+                    </div>
+                    <div class="tipo-precio">
+                        <h4><i class="fas fa-percentage"></i> Oferta por Cantidad</h4>
+                        <p>Algunos productos tienen descuento al comprar múltiples unidades.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña 2: Agregar Productos -->
+        <div class="contenido-pestana" id="pestana-agregar">
+            <section class="seccion">
+                <h2><i class="fas fa-plus-circle"></i> Agregar Nuevos Productos</h2>
+                <p style="margin-bottom: 25px; color: #666;">Completa el formulario para agregar nuevos productos a la tienda. Puedes configurar múltiples opciones de precio según cómo se venda el producto.</p>
+                
+                <form class="formulario-agregar" id="formulario-producto">
+                    <div class="grupo-formulario">
+                        <label for="nombre-producto"><i class="fas fa-tag"></i> Nombre del Producto</label>
+                        <input type="text" id="nombre-producto" placeholder="Ej: Jabón PODER Ultra, Café, Tomates" required>
+                    </div>
+                    
+                    <div class="grupo-formulario">
+                        <label for="categoria-producto"><i class="fas fa-list"></i> Categoría</label>
+                        <select id="categoria-producto" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option value="limpieza">Limpieza</option>
+                            <option value="verduras">Verduras</option>
+                            <option value="pan">Pan</option>
+                            <option value="dulces">Dulces</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="churros">Churros</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-formulario">
+                        <label for="descripcion-producto"><i class="fas fa-align-left"></i> Descripción</label>
+                        <textarea id="descripcion-producto" rows="3" placeholder="Descripción del producto..."></textarea>
+                    </div>
+
+                    <div class="grupo-formulario campo-precios-multiples">
+                        <label><i class="fas fa-dollar-sign"></i> Configurar Precios</label>
+                        <div class="precios-multiples">
+                            <div class="precio-multiple">
+                                <div class="titulo-precio-multiple"><i class="fas fa-box"></i> Precio Normal</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Precio ($)</label>
+                                        <input type="number" id="precio-normal" min="0" step="0.01" placeholder="Ej: 3.50" required>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Unidad</label>
+                                        <input type="text" id="unidad-normal" placeholder="Ej: unidad, paquete, libra">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="precio-multiple">
+                                <div class="titulo-precio-multiple"><i class="fas fa-cube"></i> Precio Individual (Opcional)</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Precio por unidad ($)</label>
+                                        <input type="number" id="precio-individual" min="0" step="0.01" placeholder="Ej: 0.10">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Unidades por paquete</label>
+                                        <input type="number" id="unidades-por-paquete" min="1" placeholder="Ej: 3">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="precio-multiple">
+                                <div class="titulo-precio-multiple"><i class="fas fa-percentage"></i> Oferta por Cantidad (Opcional)</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Cantidad para oferta</label>
+                                        <input type="number" id="cantidad-oferta" min="2" placeholder="Ej: 3">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Precio con oferta ($)</label>
+                                        <input type="number" id="precio-oferta" min="0" step="0.01" placeholder="Ej: 0.25">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="precio-multiple">
+                                <div class="titulo-precio-multiple"><i class="fas fa-balance-scale"></i> Precio por Peso (Opcional)</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Precio por libra ($)</label>
+                                        <input type="number" id="precio-por-libra" min="0" step="0.01" placeholder="Ej: 1.00">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.9rem;">Precio por kilo ($)</label>
+                                        <input type="number" id="precio-por-kilo" min="0" step="0.01" placeholder="Ej: 2.20">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="boton boton-grande boton-azul">
+                        <i class="fas fa-save"></i> Guardar Producto con Precios Múltiples
+                    </button>
+                </form>
+                
+                <div style="margin-top: 40px; padding: 25px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid var(--verde-tienda);">
+                    <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center;">
+                        <i class="fas fa-info-circle"></i> Ejemplos de Configuración de Precios
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <h4 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Jabón PODER Ultra</h4>
+                            <p><strong>Paquete:</strong> 3 jabones por $2.50</p>
+                            <p><strong>Individual:</strong> 1 jabón por $0.90</p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Café</h4>
+                            <p><strong>Caja:</strong> 30 bolsitas por $3.00</p>
+                            <p><strong>Individual:</strong> 1 bolsita por $0.10</p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Tomates</h4>
+                            <p><strong>Oferta:</strong> 3 por $0.25</p>
+                            <p><strong>Normal:</strong> $0.10 cada uno</p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--rosa-oscuro); margin-bottom: 10px;">Papas</h4>
+                            <p><strong>Por peso:</strong> $1.00 la libra</p>
+                            <p><strong>Por kilo:</strong> $2.20 el kilo</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña 3: Carrito de Compra -->
+        <div class="contenido-pestana" id="pestana-carrito">
+            <div class="contenedor-productos">
+                <section class="seccion">
+                    <h2><i class="fas fa-shopping-cart"></i> Carrito de Compra</h2>
+                    
+                    <div class="lista-seleccionados" id="lista-seleccionados">
+                        <div class="vacio" id="carrito-vacio">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>No hay productos en el carrito. Selecciona productos desde la pestaña "Productos Disponibles".</p>
+                        </div>
+                    </div>
+                    
+                    <div class="total">
+                        <span>Total:</span>
+                        <span class="total-precio" id="total-precio">$0.00</span>
+                    </div>
+                    
+                    <div class="acciones-totales">
+                        <button class="boton boton-azul" id="calcular-total">
+                            <i class="fas fa-calculator"></i> Calcular Total
+                        </button>
+                        <button class="boton boton-secundario" id="limpiar-carrito">
+                            <i class="fas fa-trash-alt"></i> Limpiar Carrito
+                        </button>
+                    </div>
+                </section>
+                
+                <section class="seccion">
+                    <h2><i class="fas fa-receipt"></i> Resumen de la Compra</h2>
+                    <div style="margin-bottom: 25px;">
+                        <p style="margin-bottom: 15px; color: #666;">Aquí puedes ver los productos seleccionados y el total de tu compra.</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 12px; background-color: var(--rosa-suave); border-radius: 8px;">
+                            <span>Productos en el carrito:</span>
+                            <strong id="contador-carrito">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 12px; background-color: var(--rosa-suave); border-radius: 8px;">
+                            <span>Subtotal:</span>
+                            <strong id="subtotal">$0.00</strong>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: var(--rosa-suave); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid var(--azul-claro);">
+                        <h3 style="color: var(--azul-poder); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-lightbulb"></i> Instrucciones:
+                        </h3>
+                        <ol style="padding-left: 20px;">
+                            <li style="margin-bottom: 10px;">Ve a la pestaña "Productos Disponibles"</li>
+                            <li style="margin-bottom: 10px;">Selecciona el tipo de venta (paquete, individual, oferta, por peso)</li>
+                            <li style="margin-bottom: 10px;">Ajusta las cantidades según necesites</li>
+                            <li>Haz clic en "Calcular Total" para ver el total de tu compra</li>
+                        </ol>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 Tienda "PODER" - Gestor de Precios Completo | STON | COLLACETTES ESENCIALES</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Sistema diseñado para manejar precios por paquete, unidad individual, ofertas por cantidad y venta por peso.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Datos iniciales de ejemplo con múltiples precios
+        const productosIniciales = [
+            {
+                id: 1,
+                nombre: "Jabón PODER Ultra",
+                categoria: "limpieza",
+                descripcion: "Jabón en barra con enzimas para quitamanchas",
+                precios: {
+                    normal: { valor: 2.50, unidad: "paquete de 3", tipo: "paquete" },
+                    individual: { valor: 0.90, unidad: "unidad", unidadesPorPaquete: 3 },
+                    porPeso: null,
+                    oferta: null
+                },
+                especial: true
+            },
+            {
+                id: 2,
+                nombre: "Café",
+                categoria: "bebidas",
+                descripcion: "Café en bolsitas individuales",
+                precios: {
+                    normal: { valor: 3.00, unidad: "caja de 30", tipo: "paquete" },
+                    individual: { valor: 0.10, unidad: "bolsita", unidadesPorPaquete: 30 },
+                    porPeso: null,
+                    oferta: null
+                }
+            },
+            {
+                id: 3,
+                nombre: "Tomates",
+                categoria: "verduras",
+                descripcion: "Tomates frescos",
+                precios: {
+                    normal: { valor: 0.10, unidad: "unidad", tipo: "unidad" },
+                    individual: null,
+                    porPeso: null,
+                    oferta: { cantidad: 3, valor: 0.25, unidad: "3 por", tipo: "oferta" }
+                }
+            },
+            {
+                id: 4,
+                nombre: "Papas",
+                categoria: "verduras",
+                descripcion: "Papas para cocinar",
+                precios: {
+                    normal: { valor: 1.00, unidad: "libra", tipo: "peso" },
+                    individual: null,
+                    porPeso: { libra: 1.00, kilo: 2.20 },
+                    oferta: null
+                }
+            },
+            {
+                id: 5,
+                nombre: "Lechuga",
+                categoria: "verduras",
+                descripcion: "Lechuga fresca",
+                precios: {
+                    normal: { valor: 0.80, unidad: "unidad", tipo: "unidad" },
+                    individual: null,
+                    porPeso: { libra: 1.50, kilo: 3.30 },
+                    oferta: null
+                }
+            },
+            {
+                id: 6,
+                nombre: "Refresco de cola",
+                categoria: "bebidas",
+                descripcion: "Refresco de cola 2L",
+                precios: {
+                    normal: { valor: 1.50, unidad: "botella", tipo: "unidad" },
+                    individual: null,
+                    porPeso: null,
+                    oferta: { cantidad: 4, valor: 5.00, unidad: "4 por", tipo: "oferta" }
+                }
+            },
+            {
+                id: 7,
+                nombre: "Churros con chocolate",
+                categoria: "churros",
+                descripcion: "Churros tradicionales con chocolate",
+                precios: {
+                    normal: { valor: 3.50, unidad: "porción", tipo: "unidad" },
+                    individual: null,
+                    porPeso: null,
+                    oferta: { cantidad: 6, valor: 18.00, unidad: "6 por", tipo: "oferta" }
+                }
+            }
+        ];
+
+        // Variables globales
+        let productos = [];
+        let productosSeleccionados = [];
+        let nextId = productosIniciales.length + 1;
+        let categoriaFiltro = 'todos';
+
+        // Cargar productos iniciales al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar productos del localStorage o usar los iniciales
+            const productosGuardados = localStorage.getItem('productosTiendaPoder');
+            if (productosGuardados) {
+                productos = JSON.parse(productosGuardados);
+                nextId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : nextId;
+            } else {
+                productos = [...productosIniciales];
+                guardarProductosEnLocalStorage();
+            }
+
+            // Cargar carrito del localStorage
+            const carritoGuardado = localStorage.getItem('carritoTiendaPoder');
+            if (carritoGuardado) {
+                productosSeleccionados = JSON.parse(carritoGuardado);
+            }
+
+            // Configurar las pestañas
+            configurarPestanas();
+            
+            // Configurar filtros de categoría
+            configurarFiltros();
+            
+            // Renderizar productos iniciales
+            renderizarProductos();
+            actualizarContadorProductos();
+            
+            // Configurar el formulario
+            document.getElementById('formulario-producto').addEventListener('submit', agregarProducto);
+            
+            // Configurar botones
+            document.getElementById('calcular-total').addEventListener('click', calcularTotal);
+            document.getElementById('limpiar-carrito').addEventListener('click', limpiarCarrito);
+            
+            // Renderizar carrito inicial
+            renderizarCarrito();
+            calcularTotal();
+        });
+
+        // Configurar el comportamiento de las pestañas
+        function configurarPestanas() {
+            const pestanas = document.querySelectorAll('.pestana');
+            const contenidos = document.querySelectorAll('.contenido-pestana');
+            
+            pestanas.forEach(pestana => {
+                pestana.addEventListener('click', function() {
+                    const pestanaId = this.getAttribute('data-pestana');
+                    
+                    // Remover clase activa de todas las pestañas
+                    pestanas.forEach(p => p.classList.remove('activa'));
+                    contenidos.forEach(c => c.classList.remove('activa'));
+                    
+                    // Activar la pestaña seleccionada
+                    this.classList.add('activa');
+                    document.getElementById(`pestana-${pestanaId}`).classList.add('activa');
+                    
+                    // Si la pestaña es "carrito", actualizar el carrito
+                    if (pestanaId === 'carrito') {
+                        renderizarCarrito();
+                        actualizarContadorCarrito();
+                    }
+                    
+                    // Si la pestaña es "productos", actualizar la lista
+                    if (pestanaId === 'productos') {
+                        renderizarProductos();
+                    }
+                });
+            });
+        }
+
+        // Configurar filtros de categoría
+        function configurarFiltros() {
+            const filtros = document.querySelectorAll('.filtro-categoria');
+            
+            filtros.forEach(filtro => {
+                filtro.addEventListener('click', function() {
+                    // Remover clase activa de todos los filtros
+                    filtros.forEach(f => f.classList.remove('activa'));
+                    
+                    // Activar el filtro seleccionado
+                    this.classList.add('activa');
+                    categoriaFiltro = this.getAttribute('data-categoria');
+                    
+                    // Renderizar productos con el filtro aplicado
+                    renderizarProductos();
+                });
+            });
+        }
+
+        // Guardar productos en localStorage
+        function guardarProductosEnLocalStorage() {
+            localStorage.setItem('productosTiendaPoder', JSON.stringify(productos));
+        }
+
+        // Guardar carrito en localStorage
+        function guardarCarritoEnLocalStorage() {
+            localStorage.setItem('carritoTiendaPoder', JSON.stringify(productosSeleccionados));
+        }
+
+        // Actualizar contador de productos
+        function actualizarContadorProductos() {
+            const contador = document.getElementById('contador-productos');
+            contador.textContent = productos.length;
+        }
+
+        // Actualizar contador de carrito
+        function actualizarContadorCarrito() {
+            const contador = document.getElementById('contador-carrito');
+            const totalProductos = productosSeleccionados.reduce((total, item) => {
+                return total + (item.cantidadPaquete || 0) + (item.cantidadIndividual || 0) + (item.cantidadOferta || 0);
+            }, 0);
+            contador.textContent = totalProductos;
+        }
+
+        // Renderizar la lista de productos
+        function renderizarProductos() {
+            const listaProductos = document.getElementById('lista-productos');
+            const mensajeVacio = document.getElementById('mensaje-vacio');
+            
+            // Filtrar productos por categoría si es necesario
+            let productosFiltrados = productos;
+            if (categoriaFiltro !== 'todos') {
+                productosFiltrados = productos.filter(producto => producto.categoria === categoriaFiltro);
+            }
+            
+            if (productosFiltrados.length === 0) {
+                mensajeVacio.style.display = 'block';
+                listaProductos.innerHTML = '';
+                listaProductos.appendChild(mensajeVacio);
+                return;
+            }
+            
+            mensajeVacio.style.display = 'none';
+            
+            // Crear HTML para los productos
+            let html = '';
+            productosFiltrados.forEach(producto => {
+                const nombreCategoria = obtenerNombreCategoria(producto.categoria);
+                
+                // Generar HTML de precios
+                let preciosHTML = '';
+                
+                // Precio normal
+                if (producto.precios.normal) {
+                    preciosHTML += `
+                    <div class="precio-item">
+                        <div>
+                            <span class="precio-tipo">${producto.precios.normal.tipo === 'paquete' ? 'Paquete' : producto.precios.normal.tipo === 'peso' ? 'Por ' : ''}${producto.precios.normal.unidad}</span>
+                            <div class="producto-unidad">Precio regular</div>
+                        </div>
+                        <span class="precio-valor">$${producto.precios.normal.valor.toFixed(2)}</span>
+                    </div>
+                    `;
+                }
+                
+                // Precio individual
+                if (producto.precios.individual) {
+                    preciosHTML += `
+                    <div class="precio-item">
+                        <div>
+                            <span class="precio-tipo">Individual</span>
+                            <div class="producto-unidad">${producto.precios.individual.unidad} (${producto.precios.individual.unidadesPorPaquete} por paquete)</div>
+                        </div>
+                        <span class="precio-valor">$${producto.precios.individual.valor.toFixed(2)}</span>
+                    </div>
+                    `;
+                }
+                
+                // Oferta por cantidad
+                if (producto.precios.oferta) {
+                    preciosHTML += `
+                    <div class="precio-item">
+                        <div>
+                            <span class="precio-tipo">Oferta</span>
+                            <div class="producto-unidad">${producto.precios.oferta.cantidad} ${producto.precios.oferta.unidad}</div>
+                        </div>
+                        <span class="precio-valor">$${producto.precios.oferta.valor.toFixed(2)}</span>
+                    </div>
+                    `;
+                }
+                
+                // Precio por peso
+                if (producto.precios.porPeso) {
+                    let pesoHTML = '';
+                    if (producto.precios.porPeso.libra) {
+                        pesoHTML += `Libra: $${producto.precios.porPeso.libra.toFixed(2)}`;
+                    }
+                    if (producto.precios.porPeso.kilo) {
+                        if (pesoHTML) pesoHTML += ' | ';
+                        pesoHTML += `Kilo: $${producto.precios.porPeso.kilo.toFixed(2)}`;
+                    }
+                    
+                    preciosHTML += `
+                    <div class="precio-item">
+                        <div>
+                            <span class="precio-tipo">Por peso</span>
+                            <div class="producto-unidad">${pesoHTML}</div>
+                        </div>
+                        <span class="precio-valor">Variable</span>
+                    </div>
+                    `;
+                }
+                
+                // Determinar si el producto tiene múltiples opciones de precio
+                const tieneMultiplesOpciones = (producto.precios.individual || producto.precios.oferta || producto.precios.porPeso);
+                
+                html += `
+                <div class="producto ${producto.especial ? 'producto-especial' : ''}" data-id="${producto.id}">
+                    ${producto.especial ? '<div class="etiqueta-especial"><i class="fas fa-star"></i> Especial</div>' : ''}
+                    <div class="producto-id">ID: ${producto.id}</div>
+                    <span class="producto-categoria">${nombreCategoria}</span>
+                    <h3 class="producto-nombre">${producto.nombre}</h3>
+                    ${producto.descripcion ? `<p style="margin-bottom: 15px; color: #666; font-size: 0.95rem;">${producto.descripcion}</p>` : ''}
+                    <div class="producto-precios">
+                        ${preciosHTML}
+                    </div>
+                    <div class="producto-acciones">
+                        <button class="boton ${tieneMultiplesOpciones ? 'boton-azul' : ''}" onclick="seleccionarProducto(${producto.id})">
+                            <i class="fas fa-cart-plus"></i> 
+                            ${tieneMultiplesOpciones ? 'Elegir Opción' : 'Agregar'}
+                        </button>
+                        <button class="boton boton-secundario" onclick="eliminarProducto(${producto.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+            
+            listaProductos.innerHTML = html;
+        }
+
+        // Seleccionar un producto (mostrar opciones de precio)
+        function seleccionarProducto(id) {
+            const producto = productos.find(p => p.id === id);
+            if (!producto) return;
+            
+            // Crear modal para seleccionar opción de precio
+            const modalHTML = `
+                <div id="modal-opciones" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; display: flex; justify-content: center; align-items: center;">
+                    <div style="background-color: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 style="color: var(--azul-poder);">Seleccionar Opción de Compra</h2>
+                            <button onclick="cerrarModal()" style="background: none; border: none; font-size: 1.8rem; color: var(--rosa-oscuro); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <h3 style="margin-bottom: 20px; color: var(--azul-poder);">${producto.nombre}</h3>
+                        
+                        <div id="opciones-precio" style="display: flex; flex-direction: column; gap: 20px;">
+                            <!-- Las opciones se generarán dinámicamente -->
+                        </div>
+                        
+                        <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px;">
+                            <button onclick="cerrarModal()" class="boton boton-secundario">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar modal al documento
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Generar opciones de precio
+            const opcionesContainer = document.getElementById('opciones-precio');
+            let opcionesHTML = '';
+            
+            // Opción 1: Precio normal
+            if (producto.precios.normal) {
+                opcionesHTML += `
+                <div style="padding: 20px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid var(--azul-claro);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--azul-poder); margin-bottom: 5px;">${producto.precios.normal.tipo === 'paquete' ? 'Paquete Completo' : producto.precios.normal.tipo === 'peso' ? 'Por Peso' : 'Normal'}</h4>
+                            <p style="color: #666; font-size: 0.95rem;">${producto.precios.normal.unidad}</p>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--verde-tienda);">$${producto.precios.normal.valor.toFixed(2)}</div>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('normal', -1, ${producto.id})">-</button>
+                            <span class="cantidad-valor" id="cantidad-normal-${producto.id}">0</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('normal', 1, ${producto.id})">+</button>
+                        </div>
+                        <button onclick="agregarAlCarrito('normal', ${producto.id})" class="boton" style="flex: 1;">
+                            <i class="fas fa-cart-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+            
+            // Opción 2: Precio individual
+            if (producto.precios.individual) {
+                opcionesHTML += `
+                <div style="padding: 20px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid var(--verde-tienda);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--azul-poder); margin-bottom: 5px;">Venta Individual</h4>
+                            <p style="color: #666; font-size: 0.95rem;">${producto.precios.individual.unidad} individual (${producto.precios.individual.unidadesPorPaquete} por paquete)</p>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--verde-tienda);">$${producto.precios.individual.valor.toFixed(2)}</div>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('individual', -1, ${producto.id})">-</button>
+                            <span class="cantidad-valor" id="cantidad-individual-${producto.id}">0</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('individual', 1, ${producto.id})">+</button>
+                        </div>
+                        <button onclick="agregarAlCarrito('individual', ${producto.id})" class="boton" style="flex: 1;">
+                            <i class="fas fa-cart-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+            
+            // Opción 3: Oferta por cantidad
+            if (producto.precios.oferta) {
+                opcionesHTML += `
+                <div style="padding: 20px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid #ff9800;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="color: var(--azul-poder); margin-bottom: 5px;">Oferta Especial</h4>
+                            <p style="color: #666; font-size: 0.95rem;">${producto.precios.oferta.cantidad} ${producto.precios.oferta.unidad}</p>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--verde-tienda);">$${producto.precios.oferta.valor.toFixed(2)}</div>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('oferta', -1, ${producto.id})">-</button>
+                            <span class="cantidad-valor" id="cantidad-oferta-${producto.id}">0</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadModal('oferta', 1, ${producto.id})">+</button>
+                        </div>
+                        <button onclick="agregarAlCarrito('oferta', ${producto.id})" class="boton" style="flex: 1; background-color: #ff9800;">
+                            <i class="fas fa-percentage"></i> Aplicar Oferta
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+            
+            // Opción 4: Precio por peso
+            if (producto.precios.porPeso) {
+                let opcionesPeso = '';
+                if (producto.precios.porPeso.libra) {
+                    opcionesPeso += `
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600;">Por libra</span>
+                            <span style="font-weight: 800; color: var(--verde-tienda);">$${producto.precios.porPeso.libra.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div class="opcion-botones">
+                                <button class="cantidad-btn" onclick="cambiarCantidadModal('libra', -0.5, ${producto.id})">-½</button>
+                                <span class="cantidad-valor" id="cantidad-libra-${producto.id}">0</span>
+                                <button class="cantidad-btn" onclick="cambiarCantidadModal('libra', 0.5, ${producto.id})">+½</button>
+                            </div>
+                            <span style="font-size: 0.9rem; color: #666;">libras</span>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (producto.precios.porPeso.kilo) {
+                    opcionesPeso += `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600;">Por kilo</span>
+                            <span style="font-weight: 800; color: var(--verde-tienda);">$${producto.precios.porPeso.kilo.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div class="opcion-botones">
+                                <button class="cantidad-btn" onclick="cambiarCantidadModal('kilo', -0.5, ${producto.id})">-½</button>
+                                <span class="cantidad-valor" id="cantidad-kilo-${producto.id}">0</span>
+                                <button class="cantidad-btn" onclick="cambiarCantidadModal('kilo', 0.5, ${producto.id})">+½</button>
+                            </div>
+                            <span style="font-size: 0.9rem; color: #666;">kilos</span>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                opcionesHTML += `
+                <div style="padding: 20px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid #9c27b0;">
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: var(--azul-poder); margin-bottom: 5px;">Venta por Peso</h4>
+                        <p style="color: #666; font-size: 0.95rem;">Seleccione la cantidad en libras o kilos</p>
+                    </div>
+                    ${opcionesPeso}
+                    <div style="margin-top: 20px;">
+                        <button onclick="agregarAlCarrito('peso', ${producto.id})" class="boton" style="width: 100%; background-color: #9c27b0;">
+                            <i class="fas fa-balance-scale"></i> Agregar por Peso
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+            
+            opcionesContainer.innerHTML = opcionesHTML;
+        }
+
+        // Cerrar modal
+        function cerrarModal() {
+            const modal = document.getElementById('modal-opciones');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Cambiar cantidad en el modal
+        function cambiarCantidadModal(tipo, cambio, id) {
+            const elemento = document.getElementById(`cantidad-${tipo}-${id}`);
+            if (!elemento) return;
+            
+            let valorActual = parseFloat(elemento.textContent) || 0;
+            valorActual += cambio;
+            
+            // Validar que no sea negativo
+            if (valorActual < 0) valorActual = 0;
+            
+            // Para pesos, mantener máximo 2 decimales
+            if (tipo === 'libra' || tipo === 'kilo') {
+                valorActual = Math.round(valorActual * 100) / 100;
+                if (valorActual.toString().split('.')[1]?.length > 2) {
+                    valorActual = parseFloat(valorActual.toFixed(2));
+                }
+            }
+            
+            elemento.textContent = valorActual;
+        }
+
+        // Agregar producto al carrito desde el modal
+        function agregarAlCarrito(tipo, id) {
+            const producto = productos.find(p => p.id === id);
+            if (!producto) return;
+            
+            // Obtener la cantidad seleccionada
+            const elemento = document.getElementById(`cantidad-${tipo}-${id}`);
+            if (!elemento) return;
+            
+            const cantidad = parseFloat(elemento.textContent) || 0;
+            if (cantidad <= 0) {
+                mostrarNotificacion('Seleccione una cantidad mayor a cero', 'error');
+                return;
+            }
+            
+            // Buscar si el producto ya está en el carrito
+            let itemIndex = productosSeleccionados.findIndex(item => item.id === id);
+            
+            if (itemIndex === -1) {
+                // Crear nuevo item en el carrito
+                const nuevoItem = {
+                    id: id,
+                    tipoSeleccionado: tipo,
+                    cantidad: cantidad
+                };
+                
+                // Asignar la cantidad según el tipo
+                if (tipo === 'normal') nuevoItem.cantidadPaquete = cantidad;
+                if (tipo === 'individual') nuevoItem.cantidadIndividual = cantidad;
+                if (tipo === 'oferta') nuevoItem.cantidadOferta = cantidad;
+                if (tipo === 'libra') nuevoItem.cantidadLibra = cantidad;
+                if (tipo === 'kilo') nuevoItem.cantidadKilo = cantidad;
+                if (tipo === 'peso') {
+                    // Para peso, usar los valores específicos
+                    const cantidadLibra = parseFloat(document.getElementById(`cantidad-libra-${id}`)?.textContent || 0);
+                    const cantidadKilo = parseFloat(document.getElementById(`cantidad-kilo-${id}`)?.textContent || 0);
+                    nuevoItem.cantidadLibra = cantidadLibra;
+                    nuevoItem.cantidadKilo = cantidadKilo;
+                }
+                
+                productosSeleccionados.push(nuevoItem);
+            } else {
+                // Actualizar item existente
+                const item = productosSeleccionados[itemIndex];
+                item.tipoSeleccionado = tipo;
+                
+                // Actualizar la cantidad según el tipo
+                if (tipo === 'normal') item.cantidadPaquete = (item.cantidadPaquete || 0) + cantidad;
+                if (tipo === 'individual') item.cantidadIndividual = (item.cantidadIndividual || 0) + cantidad;
+                if (tipo === 'oferta') item.cantidadOferta = (item.cantidadOferta || 0) + cantidad;
+                if (tipo === 'libra') item.cantidadLibra = (item.cantidadLibra || 0) + cantidad;
+                if (tipo === 'kilo') item.cantidadKilo = (item.cantidadKilo || 0) + cantidad;
+                if (tipo === 'peso') {
+                    const cantidadLibra = parseFloat(document.getElementById(`cantidad-libra-${id}`)?.textContent || 0);
+                    const cantidadKilo = parseFloat(document.getElementById(`cantidad-kilo-${id}`)?.textContent || 0);
+                    item.cantidadLibra = (item.cantidadLibra || 0) + cantidadLibra;
+                    item.cantidadKilo = (item.cantidadKilo || 0) + cantidadKilo;
+                }
+            }
+            
+            guardarCarritoEnLocalStorage();
+            cerrarModal();
+            renderizarCarrito();
+            calcularTotal();
+            
+            mostrarNotificacion(`${producto.nombre} agregado al carrito`, 'exito');
+        }
+
+        // Renderizar el carrito de compras
+        function renderizarCarrito() {
+            const listaSeleccionados = document.getElementById('lista-seleccionados');
+            const carritoVacio = document.getElementById('carrito-vacio');
+            
+            if (productosSeleccionados.length === 0) {
+                carritoVacio.style.display = 'block';
+                listaSeleccionados.innerHTML = '';
+                listaSeleccionados.appendChild(carritoVacio);
+                actualizarContadorCarrito();
+                return;
+            }
+            
+            carritoVacio.style.display = 'none';
+            
+            let html = '';
+            
+            productosSeleccionados.forEach((item, index) => {
+                const producto = productos.find(p => p.id === item.id);
+                if (!producto) return;
+                
+                const nombreCategoria = obtenerNombreCategoria(producto.categoria);
+                
+                // Generar HTML para las opciones seleccionadas
+                let opcionesHTML = '';
+                
+                if (item.cantidadPaquete > 0) {
+                    opcionesHTML += `
+                    <div class="opcion-venta">
+                        <div class="opcion-titulo">Paquete: ${producto.precios.normal?.unidad || ''}</div>
+                        <div class="opcion-precio">$${producto.precios.normal?.valor.toFixed(2) || '0.00'} x ${item.cantidadPaquete}</div>
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadPaquete', -1)">-</button>
+                            <span class="cantidad-valor">${item.cantidadPaquete}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadPaquete', 1)">+</button>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (item.cantidadIndividual > 0) {
+                    opcionesHTML += `
+                    <div class="opcion-venta">
+                        <div class="opcion-titulo">Individual: ${producto.precios.individual?.unidad || ''}</div>
+                        <div class="opcion-precio">$${producto.precios.individual?.valor.toFixed(2) || '0.00'} x ${item.cantidadIndividual}</div>
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadIndividual', -1)">-</button>
+                            <span class="cantidad-valor">${item.cantidadIndividual}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadIndividual', 1)">+</button>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (item.cantidadOferta > 0) {
+                    opcionesHTML += `
+                    <div class="opcion-venta">
+                        <div class="opcion-titulo">Oferta: ${producto.precios.oferta?.cantidad || ''} ${producto.precios.oferta?.unidad || ''}</div>
+                        <div class="opcion-precio">$${producto.precios.oferta?.valor.toFixed(2) || '0.00'} x ${item.cantidadOferta}</div>
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadOferta', -1)">-</button>
+                            <span class="cantidad-valor">${item.cantidadOferta}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadOferta', 1)">+</button>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (item.cantidadLibra > 0) {
+                    opcionesHTML += `
+                    <div class="opcion-venta">
+                        <div class="opcion-titulo">Por libra</div>
+                        <div class="opcion-precio">$${producto.precios.porPeso?.libra?.toFixed(2) || '0.00'} x ${item.cantidadLibra.toFixed(2)} lb</div>
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadLibra', -0.5)">-½</button>
+                            <span class="cantidad-valor">${item.cantidadLibra.toFixed(2)}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadLibra', 0.5)">+½</button>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (item.cantidadKilo > 0) {
+                    opcionesHTML += `
+                    <div class="opcion-venta">
+                        <div class="opcion-titulo">Por kilo</div>
+                        <div class="opcion-precio">$${producto.precios.porPeso?.kilo?.toFixed(2) || '0.00'} x ${item.cantidadKilo.toFixed(2)} kg</div>
+                        <div class="opcion-botones">
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadKilo', -0.5)">-½</button>
+                            <span class="cantidad-valor">${item.cantidadKilo.toFixed(2)}</span>
+                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadKilo', 0.5)">+½</button>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                html += `
+                <div class="item-seleccionado" data-id="${producto.id}">
+                    <div class="item-info">
+                        <span class="item-nombre">${producto.nombre}</span>
+                        <span class="item-categoria">${nombreCategoria}</span>
+                    </div>
+                    <div class="item-opciones">
+                        ${opcionesHTML}
+                    </div>
+                    <button class="eliminar-item" onclick="eliminarDelCarrito(${index})">
+                        <i class="fas fa-times"></i> Eliminar
+                    </button>
+                </div>
+                `;
+            });
+            
+            listaSeleccionados.innerHTML = html;
+            actualizarContadorCarrito();
+        }
+
+        // Cambiar cantidad en el carrito
+        function cambiarCantidadCarrito(index, tipo, cambio) {
+            if (index < 0 || index >= productosSeleccionados.length) return;
+            
+            const item = productosSeleccionados[index];
+            item[tipo] = (item[tipo] || 0) + cambio;
+            
+            // Validar que no sea negativo
+            if (item[tipo] < 0) item[tipo] = 0;
+            
+            // Para pesos, mantener máximo 2 decimales
+            if (tipo === 'cantidadLibra' || tipo === 'cantidadKilo') {
+                item[tipo] = Math.round(item[tipo] * 100) / 100;
+                if (item[tipo].toString().split('.')[1]?.length > 2) {
+                    item[tipo] = parseFloat(item[tipo].toFixed(2));
+                }
+            }
+            
+            // Si todas las cantidades son 0, eliminar el item
+            const totalCantidad = (item.cantidadPaquete || 0) + (item.cantidadIndividual || 0) + (item.cantidadOferta || 0) + (item.cantidadLibra || 0) + (item.cantidadKilo || 0);
+            if (totalCantidad <= 0) {
+                productosSeleccionados.splice(index, 1);
+            }
+            
+            guardarCarritoEnLocalStorage();
+            renderizarCarrito();
+            calcularTotal();
+        }
+
+        // Eliminar producto del carrito
+        function eliminarDelCarrito(index) {
+            productosSeleccionados.splice(index, 1);
+            
+            guardarCarritoEnLocalStorage();
+            renderizarCarrito();
+            calcularTotal();
+            
+            mostrarNotificacion('Producto eliminado del carrito', 'info');
+        }
+
+        // Eliminar producto de la lista
+        function eliminarProducto(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                return;
+            }
+            
+            // Eliminar de la lista de productos
+            productos = productos.filter(producto => producto.id !== id);
+            
+            // Eliminar del carrito si está seleccionado
+            productosSeleccionados = productosSeleccionados.filter(item => item.id !== id);
+            
+            guardarProductosEnLocalStorage();
+            guardarCarritoEnLocalStorage();
+            renderizarProductos();
+            renderizarCarrito();
+            calcularTotal();
+            actualizarContadorProductos();
+            
+            mostrarNotificacion('Producto eliminado correctamente', 'exito');
+        }
+
+        // Obtener nombre legible de categoría
+        function obtenerNombreCategoria(categoria) {
+            const nombres = {
+                'churros': 'Churros',
+                'verduras': 'Verduras',
+                'pan': 'Pan',
+                'dulces': 'Dulces',
+                'bebidas': 'Bebidas',
+                'limpieza': 'Limpieza',
+                'otros': 'Otros'
+            };
+            return nombres[categoria] || categoria;
+        }
+
+        // Calcular el total de la compra
+        function calcularTotal() {
+            let total = 0;
+            let subtotal = 0;
+            
+            productosSeleccionados.forEach(item => {
+                const producto = productos.find(p => p.id === item.id);
+                if (!producto) return;
+                
+                // Calcular por paquete
+                if (item.cantidadPaquete > 0 && producto.precios.normal) {
+                    subtotal += producto.precios.normal.valor * item.cantidadPaquete;
+                }
+                
+                // Calcular por unidad individual
+                if (item.cantidadIndividual > 0 && producto.precios.individual) {
+                    subtotal += producto.precios.individual.valor * item.cantidadIndividual;
+                }
+                
+                // Calcular por oferta
+                if (item.cantidadOferta > 0 && producto.precios.oferta) {
+                    subtotal += producto.precios.oferta.valor * item.cantidadOferta;
+                }
+                
+                // Calcular por peso (libra)
+                if (item.cantidadLibra > 0 && producto.precios.porPeso?.libra) {
+                    subtotal += producto.precios.porPeso.libra * item.cantidadLibra;
+                }
+                
+                // Calcular por peso (kilo)
+                if (item.cantidadKilo > 0 && producto.precios.porPeso?.kilo) {
+                    subtotal += producto.precios.porPeso.kilo * item.cantidadKilo;
+                }
+            });
+            
+            total = subtotal; // En este sistema simple, subtotal = total
+            
+            document.getElementById('total-precio').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            
+            if (productosSeleccionados.length > 0) {
+                mostrarNotificacion(`Total calculado: $${total.toFixed(2)}`, 'exito');
+            }
+        }
+
+        // Limpiar el carrito
+        function limpiarCarrito() {
+            if (productosSeleccionados.length === 0) {
+                mostrarNotificacion('El carrito ya está vacío', 'info');
+                return;
+            }
+            
+            if (!confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
+                return;
+            }
+            
+            productosSeleccionados = [];
+            guardarCarritoEnLocalStorage();
+            renderizarCarrito();
+            calcularTotal();
+            
+            mostrarNotificacion('Carrito vaciado correctamente', 'exito');
+        }
+
+        // Agregar nuevo producto desde el formulario
+        function agregarProducto(e) {
+            e.preventDefault();
+            
+            const nombreInput = document.getElementById('nombre-producto');
+            const categoriaSelect = document.getElementById('categoria-producto');
+            const descripcionInput = document.getElementById('descripcion-producto');
+            const precioNormalInput = document.getElementById('precio-normal');
+            const unidadNormalInput = document.getElementById('unidad-normal');
+            const precioIndividualInput = document.getElementById('precio-individual');
+            const unidadesPorPaqueteInput = document.getElementById('unidades-por-paquete');
+            const cantidadOfertaInput = document.getElementById('cantidad-oferta');
+            const precioOfertaInput = document.getElementById('precio-oferta');
+            const precioPorLibraInput = document.getElementById('precio-por-libra');
+            const precioPorKiloInput = document.getElementById('precio-por-kilo');
+            
+            // Validar que al menos el precio normal esté completo
+            if (!nombreInput.value.trim() || !categoriaSelect.value || !precioNormalInput.value) {
+                mostrarNotificacion('Debe completar al menos el nombre, categoría y precio normal', 'error');
+                return;
+            }
+            
+            // Construir objeto de precios
+            const precios = {
+                normal: {
+                    valor: parseFloat(precioNormalInput.value),
+                    unidad: unidadNormalInput.value || "unidad",
+                    tipo: unidadNormalInput.value.toLowerCase().includes("paquete") ? "paquete" : 
+                          unidadNormalInput.value.toLowerCase().includes("libra") || unidadNormalInput.value.toLowerCase().includes("kilo") ? "peso" : "unidad"
+                },
+                individual: null,
+                porPeso: null,
+                oferta: null
+            };
+            
+            // Agregar precio individual si se proporciona
+            if (precioIndividualInput.value && unidadesPorPaqueteInput.value) {
+                precios.individual = {
+                    valor: parseFloat(precioIndividualInput.value),
+                    unidad: "unidad",
+                    unidadesPorPaquete: parseInt(unidadesPorPaqueteInput.value)
+                };
+            }
+            
+            // Agregar oferta si se proporciona
+            if (cantidadOfertaInput.value && precioOfertaInput.value) {
+                precios.oferta = {
+                    cantidad: parseInt(cantidadOfertaInput.value),
+                    valor: parseFloat(precioOfertaInput.value),
+                    unidad: `${cantidadOfertaInput.value} por`,
+                    tipo: "oferta"
+                };
+            }
+            
+            // Agregar precio por peso si se proporciona
+            if (precioPorLibraInput.value || precioPorKiloInput.value) {
+                precios.porPeso = {};
+                if (precioPorLibraInput.value) {
+                    precios.porPeso.libra = parseFloat(precioPorLibraInput.value);
+                }
+                if (precioPorKiloInput.value) {
+                    precios.porPeso.kilo = parseFloat(precioPorKiloInput.value);
+                }
+                
+                // Si hay precio por peso, cambiar el tipo del precio normal a "peso"
+                if (precios.normal) {
+                    precios.normal.tipo = "peso";
+                }
+            }
+            
+            const nuevoProducto = {
+                id: nextId++,
+                nombre: nombreInput.value.trim(),
+                categoria: categoriaSelect.value,
+                descripcion: descripcionInput.value.trim(),
+                precios: precios,
+                especial: nombreInput.value.toLowerCase().includes("poder")
+            };
+            
+            productos.push(nuevoProducto);
+            guardarProductosEnLocalStorage();
+            actualizarContadorProductos();
+            
+            // Limpiar formulario
+            nombreInput.value = '';
+            categoriaSelect.value = '';
+            descripcionInput.value = '';
+            precioNormalInput.value = '';
+            unidadNormalInput.value = '';
+            precioIndividualInput.value = '';
+            unidadesPorPaqueteInput.value = '';
+            cantidadOfertaInput.value = '';
+            precioOfertaInput.value = '';
+            precioPorLibraInput.value = '';
+            precioPorKiloInput.value = '';
+            nombreInput.focus();
+            
+            // Mostrar mensaje de confirmación
+            mostrarNotificacion(`${nuevoProducto.nombre} ha sido agregado con múltiples opciones de precio`, 'exito');
+            
+            // Cambiar a la pestaña de productos después de agregar
+            setTimeout(() => {
+                document.querySelector('.pestana[data-pestana="productos"]').click();
+            }, 1500);
+        }
+
+        // Mostrar notificación
+        function mostrarNotificacion(mensaje, tipo) {
+            // Crear elemento de notificación
+            const notificacion = document.createElement('div');
+            notificacion.className = `notificacion ${tipo}`;
+            
+            // Icono según el tipo
+            let icono = 'fa-info-circle';
+            if (tipo === 'exito') icono = 'fa-check-circle';
+            if (tipo === 'error') icono = 'fa-exclamation-circle';
+            
+            notificacion.innerHTML = `
+                <i class="fas ${icono}"></i>
+                <span>${mensaje}</span>
+            `;
+            
+            // Estilos para la notificación
+            const bgColor = tipo === 'exito' ? '#d4edda' : tipo === 'error' ? '#f8d7da' : '#d1ecf1';
+            const borderColor = tipo === 'exito' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#17a2b8';
+            const textColor = tipo === 'exito' ? '#155724' : tipo === 'error' ? '#721c24' : '#0c5460';
+            
+            notificacion.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                background-color: ${bgColor};
+                color: ${textColor};
+                padding: 18px 24px;
+                border-radius: 10px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 1000;
+                border-left: 5px solid ${borderColor};
+                animation: slideIn 0.4s ease-out;
+                max-width: 400px;
+                font-weight: 500;
+            `;
+            
+            // Agregar al documento
+            document.body.appendChild(notificacion);
+            
+            // Eliminar después de 4 segundos
+            setTimeout(() => {
+                notificacion.style.animation = 'slideOut 0.4s ease-out forwards';
+                setTimeout(() => {
+                    document.body.removeChild(notificacion);
+                }, 400);
+            }, 4000);
+            
+            // Agregar animaciones CSS si no existen
+            if (!document.querySelector('#estilos-notificacion')) {
+                const estilos = document.createElement('style');
+                estilos.id = 'estilos-notificacion';
+                estilos.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(estilos);
+            }
+        }
+    </script>
+</body>
+</html>
