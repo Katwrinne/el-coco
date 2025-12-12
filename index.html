@@ -3,263 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Precios - Tienda "Poder"</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>El Coco - Gestión de Precios PODER</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo-tienda">
-                <div>
-                    <div class="logo-texto">PODER</div>
-                    <div class="logo-subtitulo">STON | COLLACETTES ESENCIALES</div>
-                </div>
-            </div>
-            <h1><i class="fas fa-store"></i> Gestor de Precios - Tienda "Poder"</h1>
-            <p class="subtitulo">Sistema completo de gestión de precios con soporte para paquetes, unidades individuales y venta por peso</p>
-        </header>
 
-        <div class="pestanas">
-            <div class="pestana activa" data-pestana="productos">
-                <i class="fas fa-boxes"></i> Productos Disponibles
-            </div>
-            <div class="pestana" data-pestana="agregar">
-                <i class="fas fa-plus-circle"></i> Agregar Productos
-            </div>
-            <div class="pestana" data-pestana="carrito">
-                <i class="fas fa-shopping-cart"></i> Carrito de Compra
-            </div>
+    <header>
+        <div class="logo-container">
+            <h1 class="logo-text">PODER</h1>
+            <p class="logo-subtitle">STON | COLLACETTES ESENCIALES</p>
+        </div>
+        <div class="product-counter" id="product-counter">Productos Totales: 0</div>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="products">Productos Disponibles</button>
+            <button class="tab-button" data-tab="add-product">Agregar Productos</button>
+            <button class="tab-button" data-tab="cart">Carrito de Compra (<span id="cart-count">0</span>)</button>
         </div>
 
-        <!-- Pestaña 1: Productos Disponibles -->
-        <div class="contenido-pestana activa" id="pestana-productos">
-            <section class="seccion">
-                <h2><i class="fas fa-boxes"></i> Productos Disponibles en la Tienda</h2>
-                
-                <div class="productos-info">
-                    <div class="contador-productos">
-                        Total de productos: <span id="contador-productos">0</span>
-                    </div>
-                    
-                    <div class="filtros">
-                        <div class="filtro-categoria filtro-todos activa" data-categoria="todos">Todos</div>
-                        <div class="filtro-categoria" data-categoria="limpieza">Limpieza</div>
-                        <div class="filtro-categoria" data-categoria="bebidas">Bebidas</div>
-                        <div class="filtro-categoria" data-categoria="verduras">Verduras</div>
-                        <div class="filtro-categoria" data-categoria="dulces">Dulces</div>
-                        <div class="filtro-categoria" data-categoria="pan">Pan</div>
-                        <div class="filtro-categoria" data-categoria="churros">Churros</div>
-                        <div class="filtro-categoria" data-categoria="otros">Otros</div>
-                    </div>
-                </div>
-                
-                <div class="lista-productos" id="lista-productos">
-                    <!-- Los productos se cargarán aquí dinámicamente -->
-                    <div class="vacio" id="mensaje-vacio">
-                        <i class="fas fa-box-open"></i>
-                        <p>No hay productos registrados aún. Agrega el primero usando la pestaña "Agregar Productos".</p>
-                    </div>
-                </div>
-
-                <div class="info-precios">
-                    <div class="tipo-precio">
-                        <h4><i class="fas fa-box"></i> Precio por Paquete</h4>
-                        <p>Algunos productos se venden en paquetes (ej: 3 jabones, caja de café).</p>
-                    </div>
-                    <div class="tipo-precio">
-                        <h4><i class="fas fa-cube"></i> Precio por Unidad</h4>
-                        <p>Los productos de paquete también pueden venderse individualmente a diferente precio.</p>
-                    </div>
-                    <div class="tipo-precio">
-                        <h4><i class="fas fa-balance-scale"></i> Precio por Peso</h4>
-                        <p>Productos como verduras se venden por libra o por cantidad específica.</p>
-                    </div>
-                    <div class="tipo-precio">
-                        <h4><i class="fas fa-shopping-cart"></i> Sistema Flexible</h4>
-                        <p>Configura múltiples precios para cada producto según cómo se venda.</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- Pestaña 2: Agregar Productos -->
-        <div class="contenido-pestana" id="pestana-agregar">
-            <section class="seccion">
-                <h2><i class="fas fa-plus-circle"></i> Agregar Nuevos Productos</h2>
-                <p style="margin-bottom: 25px; color: #666;">Completa el formulario para agregar nuevos productos a la tienda. Puedes configurar múltiples opciones de precio según cómo se venda el producto.</p>
-                
-                <form class="formulario-agregar" id="formulario-producto">
-                    <div class="grupo-formulario">
-                        <label for="nombre-producto"><i class="fas fa-tag"></i> Nombre del Producto</label>
-                        <input type="text" id="nombre-producto" placeholder="Ej: Jabón PODER Ultra, Café, Tomates" required>
-                    </div>
-                    
-                    <div class="grupo-formulario">
-                        <label for="categoria-producto"><i class="fas fa-list"></i> Categoría</label>
-                        <select id="categoria-producto" required>
-                            <option value="">Selecciona una categoría</option>
-                            <option value="limpieza">Limpieza</option>
-                            <option value="verduras">Verduras</option>
-                            <option value="pan">Pan</option>
-                            <option value="dulces">Dulces</option>
-                            <option value="bebidas">Bebidas</option>
-                            <option value="churros">Churros</option>
-                            <option value="otros">Otros</option>
-                        </select>
-                    </div>
-
-                    <div class="grupo-formulario campo-precios-multiples">
-                        <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-dollar-sign"></i> Configurar Precios
-                        </h3>
-                        
-                        <div class="precios-multiples">
-                            <!-- Precio Normal -->
-                            <div class="precio-multiple">
-                                <h4 style="color: var(--verde-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-box"></i> Precio Normal
-                                </h4>
-                                <div class="grupo-formulario">
-                                    <label for="precio-normal">Precio ($)</label>
-                                    <input type="number" id="precio-normal" min="0" step="0.01" placeholder="Ej: 3.50" required>
-                                    <small style="color: #666; margin-top: 5px;">Precio base del producto</small>
-                                </div>
-                                <div class="grupo-formulario">
-                                    <label for="unidad-normal">Unidad</label>
-                                    <input type="text" id="unidad-normal" placeholder="Ej: unidad, paquete, libra">
-                                    <small style="color: #666; margin-top: 5px;">Cómo se vende (unidad, paquete, etc.)</small>
-                                </div>
-                            </div>
-                            
-                            <!-- Precio Individual -->
-                            <div class="precio-multiple">
-                                <h4 style="color: var(--verde-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-cube"></i> Precio Individual (Opcional)
-                                </h4>
-                                <div class="grupo-formulario">
-                                    <label for="precio-individual">Precio por unidad ($)</label>
-                                    <input type="number" id="precio-individual" min="0" step="0.01" placeholder="Ej: 0.10">
-                                    <small style="color: #666; margin-top: 5px;">Precio por unidad individual</small>
-                                </div>
-                                <div class="grupo-formulario">
-                                    <label for="unidades-por-paquete">Unidades por paquete</label>
-                                    <input type="number" id="unidades-por-paquete" min="1" placeholder="Ej: 3">
-                                    <small style="color: #666; margin-top: 5px;">Cantidad de unidades en un paquete</small>
-                                </div>
-                            </div>
-                            
-                            <!-- Precio por Peso -->
-                            <div class="precio-multiple">
-                                <h4 style="color: var(--verde-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-balance-scale"></i> Precio por Peso (Opcional)
-                                </h4>
-                                <div class="grupo-formulario">
-                                    <label for="precio-por-libra">Precio por libra ($)</label>
-                                    <input type="number" id="precio-por-libra" min="0" step="0.01" placeholder="Ej: 1.00">
-                                    <small style="color: #666; margin-top: 5px;">Para productos vendidos por libra</small>
-                                </div>
-                                <div class="grupo-formulario">
-                                    <label for="precio-por-kilo">Precio por kilo ($)</label>
-                                    <input type="number" id="precio-por-kilo" min="0" step="0.01" placeholder="Ej: 2.20">
-                                    <small style="color: #666; margin-top: 5px;">Para productos vendidos por kilo</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="boton boton-grande boton-verde">
-                        <i class="fas fa-save"></i> Guardar Producto con Precios Múltiples
-                    </button>
-                </form>
-                
-                <div style="margin-top: 40px; padding: 25px; background-color: var(--amarillo-claro); border-radius: 10px; border-left: 4px solid var(--verde-oscuro);">
-                    <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center;">
-                        <i class="fas fa-info-circle"></i> Ejemplos de Configuración de Precios
-                    </h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <div>
-                            <h4 style="color: var(--verde-oscuro); margin-bottom: 10px;">Jabón PODER Ultra</h4>
-                            <p><strong>Precio normal:</strong> Paquete de 3 por $2.50</p>
-                            <p><strong>Precio individual:</strong> 1 jabón por $0.90 (3 por paquete)</p>
-                        </div>
-                        <div>
-                            <h4 style="color: var(--verde-oscuro); margin-bottom: 10px;">Café</h4>
-                            <p><strong>Precio normal:</strong> Caja de 30 bolsitas por $3.00</p>
-                            <p><strong>Precio individual:</strong> 1 bolsita por $0.10 (30 por caja)</p>
-                        </div>
-                        <div>
-                            <h4 style="color: var(--verde-oscuro); margin-bottom: 10px;">Papas</h4>
-                            <p><strong>Precio por peso:</strong> $1.00 la libra / $2.20 el kilo</p>
-                            <p><strong>Precio normal:</strong> $1.00 (por libra)</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- Pestaña 3: Carrito de Compra -->
-        <div class="contenido-pestana" id="pestana-carrito">
-            <div class="contenedor-productos">
-                <section class="seccion">
-                    <h2><i class="fas fa-shopping-cart"></i> Carrito de Compra</h2>
-                    
-                    <div class="lista-seleccionados" id="lista-seleccionados">
-                        <div class="vacio" id="carrito-vacio">
-                            <i class="fas fa-shopping-basket"></i>
-                            <p>No hay productos en el carrito. Selecciona productos desde la pestaña "Productos Disponibles".</p>
-                        </div>
-                    </div>
-                    
-                    <div class="total">
-                        <span>Total:</span>
-                        <span class="total-precio" id="total-precio">$0.00</span>
-                    </div>
-                    
-                    <div class="acciones-totales">
-                        <button class="boton boton-verde" id="calcular-total">
-                            <i class="fas fa-calculator"></i> Calcular Total
-                        </button>
-                        <button class="boton boton-secundario" id="limpiar-carrito">
-                            <i class="fas fa-trash-alt"></i> Limpiar Carrito
-                        </button>
-                    </div>
-                </section>
-                
-                <section class="seccion">
-                    <h2><i class="fas fa-receipt"></i> Resumen de la Compra</h2>
-                    <div style="margin-bottom: 25px;">
-                        <p style="margin-bottom: 15px; color: #666;">Aquí puedes ver los productos seleccionados y el total de tu compra.</p>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 12px; background-color: var(--amarillo-claro); border-radius: 8px;">
-                            <span>Productos en el carrito:</span>
-                            <strong id="contador-carrito">0</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 12px; background-color: var(--amarillo-claro); border-radius: 8px;">
-                            <span>Subtotal:</span>
-                            <strong id="subtotal">$0.00</strong>
-                        </div>
-                    </div>
-                    
-                    <div style="background-color: var(--amarillo-claro); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid var(--verde-principal);">
-                        <h3 style="color: var(--azul-poder); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-lightbulb"></i> Instrucciones:
-                        </h3>
-                        <ol style="padding-left: 20px;">
-                            <li style="margin-bottom: 10px;">Ve a la pestaña "Productos Disponibles"</li>
-                            <li style="margin-bottom: 10px;">Selecciona el tipo de venta (paquete, individual, por peso)</li>
-                            <li style="margin-bottom: 10px;">Ajusta las cantidades según necesites</li>
-                            <li>Haz clic en "Calcular Total" para ver el total de tu compra</li>
-                        </ol>
-                    </div>
-                </section>
+        <section id="products" class="tab-content active">
+            <h2>🛍️ Productos Disponibles</h2>
+            <div class="filters">
+                <label for="category-filter">Filtrar por Categoría:</label>
+                <select id="category-filter">
+                    <option value="all">Todas</option>
+                    </select>
             </div>
-        </div>
+            <div id="product-list" class="product-grid">
+                <p id="no-products-message">No hay productos disponibles. Agrega uno en la pestaña "Agregar Productos".</p>
+            </div>
+        </section>
 
-        <footer>
-            <p>© 2023 Tienda "PODER" - Gestor de Precios Completo | STON | COLLACETTES ESENCIALES</p>
-            <p style="margin-top: 10px; font-size: 0.9rem;">Sistema diseñado para manejar precios por paquete, unidad individual y venta por peso.</p>
-        </footer>
+        <section id="add-product" class="tab-content">
+            <h2>➕ Agregar Nuevo Producto</h2>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">Nombre del Producto:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-category">Categoría:</label>
+                    <select id="product-category" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="churros">Churros</option>
+                        <option value="verduras">Verduras</option>
+                        <option value="pan">Pan</option>
+                        <option value="dulces">Dulces</option>
+                        <option value="bebidas">Bebidas</option>
+                        <option value="limpieza">Productos de Limpieza</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+
+                <h3>Configuración de Precios</h3>
+
+                <div class="price-group required-price">
+                    <h4>Precio Normal (Requerido)</h4>
+                    <div class="price-fields">
+                        <input type="number" step="0.01" min="0.01" id="price-normal" placeholder="Precio ($)" required>
+                        <input type="text" id="unit-normal" placeholder="Unidad (Ej: unidad, paquete)" required>
+                    </div>
+                </div>
+
+                <div class="price-group">
+                    <h4>Precio Individual (Opcional - por paquete)</h4>
+                    <input type="checkbox" id="enable-individual-price">
+                    <label for="enable-individual-price">Habilitar Precio Individual (Ej: jabón por unidad, si se vende en paquete)</label>
+                    <div class="price-fields individual-fields hidden">
+                        <input type="number" step="0.01" min="0.01" id="price-individual" placeholder="Precio por Unidad ($)">
+                        <input type="number" min="1" id="units-per-pack" placeholder="Unidades por Paquete (Ej: 3)">
+                    </div>
+                </div>
+
+                <div class="price-group">
+                    <h4>Precio por Peso (Opcional)</h4>
+                    <input type="checkbox" id="enable-weight-price">
+                    <label for="enable-weight-price">Habilitar Precio por Peso (Ej: Papas)</label>
+                    <div class="price-fields weight-fields hidden">
+                        <input type="number" step="0.01" min="0.01" id="price-per-lb" placeholder="Precio por Libra ($)">
+                        </div>
+                </div>
+                
+                <button type="submit" class="add-button">Guardar Producto</button>
+            </form>
+        </section>
+
+        <section id="cart" class="tab-content">
+            <h2>🛒 Carrito de Compra</h2>
+            <div id="cart-list">
+                <p id="empty-cart-message">El carrito está vacío.</p>
+            </div>
+
+            <div class="cart-summary">
+                <h3>Total a Pagar: <span id="cart-total">$0.00</span></h3>
+                <div class="cart-actions">
+                    <button id="calculate-total-btn">Recalcular Total</button>
+                    <button id="clear-cart-btn" class="clear-button">Limpiar Carrito</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="selection-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Seleccionar Opción</h3>
+            <div id="modal-product-details"></div>
+            <div id="modal-options"></div>
+            <button id="add-to-cart-modal-btn">Agregar al Carrito</button>
+        </div>
     </div>
+
+    <div id="notifications-container"></div>
 
     <script src="script.js"></script>
 </body>
