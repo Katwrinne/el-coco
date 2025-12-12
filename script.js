@@ -205,6 +205,132 @@ function renderProducts(filterCategory = 'all') {
         `;
         productList.appendChild(card);
     });
+    // ... (dentro de script.js)
+
+function renderProducts(filterCategory = 'all') {
+    // ... (código para filtrar productos, manejo de mensajes)
+    
+    filteredProducts.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <h3>${product.name}</h3>
+            <p>Categoría: **${product.category.charAt(0).toUpperCase() + product.category.slice(1)}**</p>
+            <hr style="margin: 8px 0;">
+            ${product.prices.map(price => `<div class="price-option">${price.label}</div>`).join('')}
+            
+            <div style="display: flex; gap: 5px; margin-top: 10px;">
+                <button class="select-button" data-id="${product.id}" style="flex-grow: 1;">Elegir Opción</button>
+                <button class="edit-button" data-id="${product.id}" style="width: 30%; background-color: #ffd6ba; color: #333;">✏️ Editar</button>
+            </div>
+        `;
+        productList.appendChild(card);
+    });
+    // ... (dentro de script.js, después de renderProducts)
+
+/**
+ * Genera el HTML de los campos de precio para edición.
+ * @param {object} product El producto a editar.
+ * @returns {string} HTML con los campos de precio.
+ */
+function generateEditPriceFields(product) {
+    let html = '';
+    const normalPrice = product.prices.find(p => p.type === 'normal');
+    const individualPrice = product.prices.find(p => p.type === 'individual');
+    const weightPrice = product.prices.find(p => p.type === 'weight');
+
+    // --- 1. Precio Normal (Requerido) ---
+    html += `
+        <div class="price-group required-price">
+            <h4>Precio Normal (Requerido)</h4>
+            <div class="price-fields">
+                <input type="number" step="0.01" min="0.01" id="edit-price-normal" placeholder="Precio ($)" value="${normalPrice.price}" required>
+                <input type="text" id="edit-unit-normal" placeholder="Unidad (Ej: unidad, paquete)" value="${normalPrice.unit}" required>
+            </div>
+        </div>
+    `;
+
+    // --- 2. Precio Individual (Opcional) ---
+    const isIndividualEnabled = !!individualPrice;
+    html += `
+        <div class="price-group">
+            <h4>Precio Individual (Opcional - por paquete)</h4>
+            <input type="checkbox" id="edit-enable-individual-price" ${isIndividualEnabled ? 'checked' : ''}>
+            <label for="edit-enable-individual-price">Habilitar Precio Individual</label>
+            <div class="price-fields individual-fields ${isIndividualEnabled ? '' : 'hidden'}">
+                <input type="number" step="0.01" min="0.01" id="edit-price-individual" placeholder="Precio por Unidad ($)" value="${isIndividualEnabled ? individualPrice.price : ''}">
+                <input type="number" min="1" id="edit-units-per-pack" placeholder="Unidades por Paquete (Ej: 3)" value="${isIndividualEnabled ? individualPrice.unitsPerPack : ''}">
+            </div>
+        </div>
+    `;
+
+    // --- 3. Precio por Peso (Opcional) ---
+    const isWeightEnabled = !!weightPrice;
+    html += `
+        <div class="price-group">
+            <h4>Precio por Peso (Opcional)</h4>
+            <input type="checkbox" id="edit-enable-weight-price" ${isWeightEnabled ? 'checked' : ''}>
+            <label for="edit-enable-weight-price">Habilitar Precio por Peso (por libra)</label>
+            <div class="price-fields weight-fields ${isWeightEnabled ? '' : 'hidden'}">
+                <input type="number" step="0.01" min="0.01" id="edit-price-per-lb" placeholder="Precio por Libra ($)" value="${isWeightEnabled ? weightPrice.priceLb : ''}">
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+/**
+ * Abre el modal de edición y carga los datos del producto.
+ * @param {number} productId El ID del producto a editar.
+ */
+function openEditModal(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+        showNotification('❌ Error: Producto no encontrado.');
+        return;
+    }
+
+    // 1. Cargar datos básicos
+    document.getElementById('edit-product-id').value = productId;
+    document.getElementById('edit-product-name').value = product.name;
+    document.getElementById('edit-product-category').value = product.category;
+
+    // 2. Cargar campos de precio dinámicos
+    editPricesContainer.innerHTML = generateEditPriceFields(product);
+
+    // 3. Re-asignar eventos de visibilidad de campos opcionales en el modal
+    const editIndividualCheckbox = document.getElementById('edit-enable-individual-price');
+    const editWeightCheckbox = document.getElementById('edit-enable-weight-price');
+    
+    // Función para manejar la visibilidad de los campos en el modal de edición
+    const handleEditPriceToggle = (checkboxId, fieldClass) => {
+        const checkbox = document.getElementById(checkboxId);
+        const fields = editModal.querySelector(`.${fieldClass}`);
+        
+        checkbox.addEventListener('change', (e) => {
+            fields.classList.toggle('hidden', !e.target.checked);
+            // No hacemos 'required' aquí, ya que el usuario puede deshabilitarlo
+        });
+    };
+
+    handleEditPriceToggle('edit-enable-individual-price', 'individual-fields');
+    handleEditPriceToggle('edit-enable-weight-price', 'weight-fields');
+
+    editModal.style.display = 'block';
+}
+
+// Evento para abrir el modal de edición
+productList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('edit-button')) {
+        const productId = parseInt(e.target.dataset.id);
+        openEditModal(productId);
+    }
+    // ... (asegúrate de que el evento 'select-button' que ya existe no se pierda)
+    if (e.target.classList.contains('select-button')) {
+        // ... (Tu lógica existente para open modal de selección)
+    }
+});
 
     // Actualizar contador
     productCounterElement.textContent = `Productos Totales: ${products.length}`;
@@ -282,6 +408,80 @@ productList.addEventListener('click', (e) => {
         modal.style.display = 'block';
     }
 });
+
+    // ... (después del código del carrito)
+
+/**
+ * Maneja el envío del formulario de edición y guarda los cambios.
+ */
+editProductForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const productId = parseInt(document.getElementById('edit-product-id').value);
+    const productIndex = products.findIndex(p => p.id === productId);
+
+    if (productIndex === -1) {
+        showNotification('❌ Error: Producto a editar no encontrado.');
+        return;
+    }
+
+    const updatedPrices = [];
+    
+    // --- 1. Precio Normal (Requerido) ---
+    const priceNormal = parseFloat(document.getElementById('edit-price-normal').value);
+    const unitNormal = document.getElementById('edit-unit-normal').value;
+    updatedPrices.push({ 
+        type: 'normal', 
+        price: priceNormal, 
+        unit: unitNormal, 
+        label: `Paquete: $${priceNormal.toFixed(2)} por ${unitNormal}` 
+    });
+
+    // --- 2. Precio Individual (Opcional) ---
+    if (document.getElementById('edit-enable-individual-price').checked) {
+        const priceIndividual = parseFloat(document.getElementById('edit-price-individual').value);
+        const unitsPerPack = parseInt(document.getElementById('edit-units-per-pack').value);
+        if (priceIndividual > 0 && unitsPerPack > 0) {
+            updatedPrices.push({ 
+                type: 'individual', 
+                price: priceIndividual, 
+                unit: 'unidad', 
+                unitsPerPack,
+                label: `Individual: $${priceIndividual.toFixed(2)} c/u (${unitsPerPack} por paquete)`
+            });
+        } else {
+             showNotification('⚠️ Precios/Unidades Individuales inválidos, no se guardará esta opción.');
+        }
+    }
+
+    // --- 3. Precio por Peso (Opcional) ---
+    if (document.getElementById('edit-enable-weight-price').checked) {
+        const pricePerLb = parseFloat(document.getElementById('edit-price-per-lb').value);
+        if (pricePerLb > 0) {
+            const pricePerKg = pricePerLb / KG_PER_LB;
+            updatedPrices.push({ 
+                type: 'weight', 
+                priceLb: pricePerLb,
+                priceKg: pricePerKg,
+                unit: 'peso',
+                label: `Peso: $${pricePerLb.toFixed(2)} por libra ($${pricePerKg.toFixed(2)} por kilo)`
+            });
+        } else {
+             showNotification('⚠️ Precio por Libra inválido, no se guardará esta opción.');
+        }
+    }
+
+    // Aplicar los cambios al producto
+    products[productIndex].name = document.getElementById('edit-product-name').value;
+    products[productIndex].category = document.getElementById('edit-product-category').value;
+    products[productIndex].prices = updatedPrices;
+
+    saveData(STORAGE_KEY_PRODUCTS, products);
+    editModal.style.display = 'none';
+    showNotification(`✏️ Producto "${products[productIndex].name}" actualizado con éxito.`);
+    renderProducts();
+});
+
 
 // Helper para actualizar el display de peso (libras/kilos)
 function updateWeightDisplay(input, priceLb) {
