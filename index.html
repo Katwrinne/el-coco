@@ -853,11 +853,6 @@
                             <option value="otros">Otros</option>
                         </select>
                     </div>
-                    
-                    <div class="grupo-formulario">
-                        <label for="descripcion-producto"><i class="fas fa-align-left"></i> Descripción</label>
-                        <textarea id="descripcion-producto" rows="3" placeholder="Descripción del producto..."></textarea>
-                    </div>
 
                    <div class="grupo-formulario campo-precios-multiples">
     <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
@@ -923,7 +918,7 @@
                     </button>
                 </form>
                 
-                <div style="margin-top: 40px; padding: 25px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid var(--verde-tienda);">
+                <!--<div style="margin-top: 40px; padding: 25px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid var(--verde-tienda);">
                     <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center;">
                         <i class="fas fa-info-circle"></i> Ejemplos de Configuración de Precios
                     </h3>
@@ -951,7 +946,7 @@
                     </div>
                 </div>
             </section>
-        </div>
+        </div>-->
 
         <!-- Pestaña 3: Carrito de Compra -->
         <div class="contenido-pestana" id="pestana-carrito">
@@ -1281,19 +1276,6 @@
                     `;
                 }
                 
-                // Oferta por cantidad
-                if (producto.precios.oferta) {
-                    preciosHTML += `
-                    <div class="precio-item">
-                        <div>
-                            <span class="precio-tipo">Oferta</span>
-                            <div class="producto-unidad">${producto.precios.oferta.cantidad} ${producto.precios.oferta.unidad}</div>
-                        </div>
-                        <span class="precio-valor">$${producto.precios.oferta.valor.toFixed(2)}</span>
-                    </div>
-                    `;
-                }
-                
                 // Precio por peso
                 if (producto.precios.porPeso) {
                     let pesoHTML = '';
@@ -1423,31 +1405,6 @@
                         </div>
                         <button onclick="agregarAlCarrito('individual', ${producto.id})" class="boton" style="flex: 1;">
                             <i class="fas fa-cart-plus"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-                `;
-            }
-            
-            // Opción 3: Oferta por cantidad
-            if (producto.precios.oferta) {
-                opcionesHTML += `
-                <div style="padding: 20px; background-color: var(--rosa-suave); border-radius: 10px; border-left: 4px solid #ff9800;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div>
-                            <h4 style="color: var(--azul-poder); margin-bottom: 5px;">Oferta Especial</h4>
-                            <p style="color: #666; font-size: 0.95rem;">${producto.precios.oferta.cantidad} ${producto.precios.oferta.unidad}</p>
-                        </div>
-                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--verde-tienda);">$${producto.precios.oferta.valor.toFixed(2)}</div>
-                    </div>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <div class="opcion-botones">
-                            <button class="cantidad-btn" onclick="cambiarCantidadModal('oferta', -1, ${producto.id})">-</button>
-                            <span class="cantidad-valor" id="cantidad-oferta-${producto.id}">0</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidadModal('oferta', 1, ${producto.id})">+</button>
-                        </div>
-                        <button onclick="agregarAlCarrito('oferta', ${producto.id})" class="boton" style="flex: 1; background-color: #ff9800;">
-                            <i class="fas fa-percentage"></i> Aplicar Oferta
                         </button>
                     </div>
                 </div>
@@ -1666,20 +1623,6 @@
                     `;
                 }
                 
-                if (item.cantidadOferta > 0) {
-                    opcionesHTML += `
-                    <div class="opcion-venta">
-                        <div class="opcion-titulo">Oferta: ${producto.precios.oferta?.cantidad || ''} ${producto.precios.oferta?.unidad || ''}</div>
-                        <div class="opcion-precio">$${producto.precios.oferta?.valor.toFixed(2) || '0.00'} x ${item.cantidadOferta}</div>
-                        <div class="opcion-botones">
-                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadOferta', -1)">-</button>
-                            <span class="cantidad-valor">${item.cantidadOferta}</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidadCarrito(${index}, 'cantidadOferta', 1)">+</button>
-                        </div>
-                    </div>
-                    `;
-                }
-                
                 if (item.cantidadLibra > 0) {
                     opcionesHTML += `
                     <div class="opcion-venta">
@@ -1823,11 +1766,6 @@
                     subtotal += producto.precios.individual.valor * item.cantidadIndividual;
                 }
                 
-                // Calcular por oferta
-                if (item.cantidadOferta > 0 && producto.precios.oferta) {
-                    subtotal += producto.precios.oferta.valor * item.cantidadOferta;
-                }
-                
                 // Calcular por peso (libra)
                 if (item.cantidadLibra > 0 && producto.precios.porPeso?.libra) {
                     subtotal += producto.precios.porPeso.libra * item.cantidadLibra;
@@ -1879,7 +1817,6 @@
             const unidadNormalInput = document.getElementById('unidad-normal');
             const precioIndividualInput = document.getElementById('precio-individual');
             const unidadesPorPaqueteInput = document.getElementById('unidades-por-paquete');
-            const cantidadOfertaInput = document.getElementById('cantidad-oferta');
             const precioOfertaInput = document.getElementById('precio-oferta');
             const precioPorLibraInput = document.getElementById('precio-por-libra');
             const precioPorKiloInput = document.getElementById('precio-por-kilo');
@@ -1911,16 +1848,7 @@
                     unidadesPorPaquete: parseInt(unidadesPorPaqueteInput.value)
                 };
             }
-            
-            // Agregar oferta si se proporciona
-            if (cantidadOfertaInput.value && precioOfertaInput.value) {
-                precios.oferta = {
-                    cantidad: parseInt(cantidadOfertaInput.value),
-                    valor: parseFloat(precioOfertaInput.value),
-                    unidad: `${cantidadOfertaInput.value} por`,
-                    tipo: "oferta"
-                };
-            }
+        
             
             // Agregar precio por peso si se proporciona
             if (precioPorLibraInput.value || precioPorKiloInput.value) {
@@ -1959,8 +1887,6 @@
             unidadNormalInput.value = '';
             precioIndividualInput.value = '';
             unidadesPorPaqueteInput.value = '';
-            cantidadOfertaInput.value = '';
-            precioOfertaInput.value = '';
             precioPorLibraInput.value = '';
             precioPorKiloInput.value = '';
             nombreInput.focus();
