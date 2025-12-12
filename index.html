@@ -859,66 +859,64 @@
                         <textarea id="descripcion-producto" rows="3" placeholder="Descripción del producto..."></textarea>
                     </div>
 
-                    <div class="grupo-formulario campo-precios-multiples">
-                        <label><i class="fas fa-dollar-sign"></i> Configurar Precios</label>
-                        <div class="precios-multiples">
-                            <div class="precio-multiple">
-                                <div class="titulo-precio-multiple"><i class="fas fa-box"></i> Precio Normal</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Precio ($)</label>
-                                        <input type="number" id="precio-normal" min="0" step="0.01" placeholder="Ej: 3.50" required>
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Unidad</label>
-                                        <input type="text" id="unidad-normal" placeholder="Ej: unidad, paquete, libra">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="precio-multiple">
-                                <div class="titulo-precio-multiple"><i class="fas fa-cube"></i> Precio Individual (Opcional)</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Precio por unidad ($)</label>
-                                        <input type="number" id="precio-individual" min="0" step="0.01" placeholder="Ej: 0.10">
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Unidades por paquete</label>
-                                        <input type="number" id="unidades-por-paquete" min="1" placeholder="Ej: 3">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="precio-multiple">
-                                <div class="titulo-precio-multiple"><i class="fas fa-percentage"></i> Oferta por Cantidad (Opcional)</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Cantidad para oferta</label>
-                                        <input type="number" id="cantidad-oferta" min="2" placeholder="Ej: 3">
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Precio con oferta ($)</label>
-                                        <input type="number" id="precio-oferta" min="0" step="0.01" placeholder="Ej: 0.25">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="precio-multiple">
-                                <div class="titulo-precio-multiple"><i class="fas fa-balance-scale"></i> Precio por Peso (Opcional)</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Precio por libra ($)</label>
-                                        <input type="number" id="precio-por-libra" min="0" step="0.01" placeholder="Ej: 1.00">
-                                    </div>
-                                    <div>
-                                        <label style="font-size: 0.9rem;">Precio por kilo ($)</label>
-                                        <input type="number" id="precio-por-kilo" min="0" step="0.01" placeholder="Ej: 2.20">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   <div class="grupo-formulario campo-precios-multiples">
+    <h3 style="color: var(--azul-poder); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-dollar-sign"></i> Configurar Precios
+    </h3>
+    
+    <div class="precios-multiples">
+        <!-- Precio Normal -->
+        <div class="precio-multiple">
+            <h4 style="color: var(--rosa-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-box"></i> Precio Normal
+            </h4>
+            <div class="grupo-formulario">
+                <label for="precio-normal">Precio ($)</label>
+                <input type="number" id="precio-normal" min="0" step="0.01" placeholder="Ej: 3.50" required>
+                <small style="color: #666; margin-top: 5px;">Precio base del producto</small>
+            </div>
+            <div class="grupo-formulario">
+                <label for="unidad-normal">Unidad</label>
+                <input type="text" id="unidad-normal" placeholder="Ej: unidad, paquete, libra">
+                <small style="color: #666; margin-top: 5px;">Cómo se vende (unidad, paquete, etc.)</small>
+            </div>
+        </div>
+        
+        <!-- Precio Individual -->
+        <div class="precio-multiple">
+            <h4 style="color: var(--rosa-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-cube"></i> Precio Individual (Opcional)
+            </h4>
+            <div class="grupo-formulario">
+                <label for="precio-individual">Precio por unidad ($)</label>
+                <input type="number" id="precio-individual" min="0" step="0.01" placeholder="Ej: 0.10">
+                <small style="color: #666; margin-top: 5px;">Precio por unidad individual</small>
+            </div>
+            <div class="grupo-formulario">
+                <label for="unidades-por-paquete">Unidades por paquete</label>
+                <input type="number" id="unidades-por-paquete" min="1" placeholder="Ej: 3">
+                <small style="color: #666; margin-top: 5px;">Cantidad de unidades en un paquete</small>
+            </div>
+        </div>
+        
+        <!-- Precio por Peso -->
+        <div class="precio-multiple">
+            <h4 style="color: var(--rosa-oscuro); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-balance-scale"></i> Precio por Peso (Opcional)
+            </h4>
+            <div class="grupo-formulario">
+                <label for="precio-por-libra">Precio por libra ($)</label>
+                <input type="number" id="precio-por-libra" min="0" step="0.01" placeholder="Ej: 1.00">
+                <small style="color: #666; margin-top: 5px;">Para productos vendidos por libra</small>
+            </div>
+            <div class="grupo-formulario">
+                <label for="precio-por-kilo">Precio por kilo ($)</label>
+                <input type="number" id="precio-por-kilo" min="0" step="0.01" placeholder="Ej: 2.20">
+                <small style="color: #666; margin-top: 5px;">Para productos vendidos por kilo</small>
+            </div>
+        </div>
+    </div>
+</div>
                     
                     <button type="submit" class="boton boton-grande boton-azul">
                         <i class="fas fa-save"></i> Guardar Producto con Precios Múltiples
